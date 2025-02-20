@@ -75,17 +75,36 @@
                                 </div>
                                 <form action="${pageContext.request.contextPath}/authen?action=sign-up" method="POST" class="d-grid gap-lg-6 gap-4 mb-lg-10 mb-md-8 mb-6">
                                     <div class="d-grid gap-lg-4 gap-2">
-                                        <label class="text-n100 font-noto-sans text-base fw-normal">Name</label>
-                                        <input type="text" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Name">
+                                        <label class="text-n100 font-noto-sans text-base fw-normal">Username</label>
+                                        <input type="text" name="username" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Username" required>
+                                    </div>
+                                    <div class="d-grid gap-lg-4 gap-2">
+                                        <label class="text-n100 font-noto-sans text-base fw-normal">First Name</label>
+                                        <input type="text" name="firstName" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your First Name" required>
+                                    </div>
+                                    <div class="d-grid gap-lg-4 gap-2">
+                                        <label class="text-n100 font-noto-sans text-base fw-normal">Last Name</label>
+                                        <input type="text" name="lastName" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Last Name" required>
+                                    </div>
+                                    <div class="d-grid gap-lg-4 gap-2">
+                                        <label class="text-n100 font-noto-sans text-base fw-normal">Gender</label>
+                                        <select name="gender" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" required>
+                                            <option value="true">Male</option>
+                                            <option value="false">Female</option>
+                                        </select>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Email</label>
-                                        <input type="email" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Email">
+                                        <input type="email" name="email" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Email" required>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
-                                        <label class="text-n100 font-noto-sans text-base fw-normal">Enter Password</label>
+                                        <label class="text-n100 font-noto-sans text-base fw-normal">Mobile</label>
+                                        <input type="tel" name="mobile" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Mobile Number" required>
+                                    </div>
+                                    <div class="d-grid gap-lg-4 gap-2">
+                                        <label class="text-n100 font-noto-sans text-base fw-normal">Password</label>
                                         <div class="d-flex align-items-center py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2">
-                                            <input type="password" class="w-100 border-0" placeholder="Enter Password">
+                                            <input type="password" name="password" class="w-100 border-0" placeholder="Enter Password" required>
                                             <button type="button" class="text-xl password-toggle">
                                                 <i class="ph ph-eye-slash"></i>
                                             </button>
@@ -94,13 +113,12 @@
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Confirm Password</label>
                                         <div class="d-flex align-items-center py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2">
-                                            <input type="password" class="w-100 border-0" placeholder="Confirm Password">
+                                            <input type="password" name="confirmPassword" class="w-100 border-0" placeholder="Confirm Password" required>
                                             <button type="button" class="text-xl password-toggle">
                                                 <i class="ph ph-eye-slash"></i>
                                             </button>
                                         </div>
                                     </div>
-
                                     <button type="submit" class="btn-secondary py-lg-4 py-2 px-lg-6 px-4 radius-8 w-100">Register</button>
                                 </form>
 
