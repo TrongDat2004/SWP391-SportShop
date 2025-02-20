@@ -83,7 +83,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
 
     @Override
     public int insert(Account account) {
-        String sql = "INSERT INTO users (username, email, password, avatar, first_name, last_name, " +
+        String sql = "INSERT INTO account (username, email, password, avatar, first_name, last_name, " +
                 "phone, address, role, status, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
@@ -269,7 +269,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
     }
 
     public Account findById(int accountId) {
-        String sql = "SELECT * FROM account WHERE id = ?";
+        String sql = "SELECT * FROM account WHERE user_id = ?";
         try {
             connection = getConnection();
             statement = connection.prepareStatement(sql);
