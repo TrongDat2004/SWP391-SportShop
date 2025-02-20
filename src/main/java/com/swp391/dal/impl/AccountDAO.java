@@ -61,8 +61,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
             statement.setString(7, account.getPhone());
             statement.setString(8, account.getAddress());
             statement.setString(9, account.getRole());
-            statement.setBoolean(10, account.getStatus());
-            statement.setBoolean(11, account.getIsActive());
+            statement.setObject(10, account.getStatus());
+            statement.setObject(11, account.getIsActive());
             statement.setInt(12, account.getUserId());
 
             int affectedRows = statement.executeUpdate();
@@ -98,8 +98,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
             statement.setString(7, account.getPhone());
             statement.setString(8, account.getAddress());
             statement.setString(9, account.getRole());
-            statement.setBoolean(10, account.getStatus());
-            statement.setBoolean(11, account.getIsActive());
+            statement.setObject(10, account.getStatus());
+            statement.setObject(11, account.getIsActive());
 
             int affectedRows = statement.executeUpdate();
 
