@@ -127,8 +127,10 @@ public class AuthenController extends HttpServlet {
     private String signUp(HttpServletRequest request, HttpServletResponse response) {
         String url;
         // Lấy thông tin người dùng nhập
-        String fullname = request.getParameter("fullname");
-        String gender = request.getParameter("gender");
+        String username = request.getParameter("username");
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        boolean gender = Boolean.parseBoolean(request.getParameter("gender"));
         String email = request.getParameter("email");
         String mobile = request.getParameter("mobile");
         String password = request.getParameter("password");
@@ -142,14 +144,15 @@ public class AuthenController extends HttpServlet {
 
         // Kiểm tra xem email đã tồn tại trong db chưa
         Account account = Account.builder()
-                .firstName(fullname)
-                .lastName(fullname)
+                .username(username)
+                .firstName(firstName)
+                .lastName(lastName)
                 .phone(mobile)
-                .address(fullname)
                 .email(email)
                 .password(MD5PasswordEncoderUtils.encodeMD5(password))
                 .role(GlobalConfig.ROLE_STUDENT)
                 .isActive(false)
+                .status(gender)
                 .build();
         Account accountFoundByEmail = accountDAO.findByEmail(account);
 
