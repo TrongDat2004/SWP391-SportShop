@@ -62,10 +62,10 @@ public class GlobalConfig {
     public static String GOOGLE_GRANT_TYPE = "authorization_code";
 
 
-    public static final Integer ROLE_STUDENT = 3;
+    public static final String ROLE_STUDENT = "student";
 
-    public static final Integer ROLE_ADMIN = 1;
+    public static final String ROLE_ADMIN = "admin";
 
-    public static final Integer ROLE_TEACHER = 2;
+    public static final String ROLE_TEACHER = "teacher";
 
 }
