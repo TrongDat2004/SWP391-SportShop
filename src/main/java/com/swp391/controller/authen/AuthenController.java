@@ -21,6 +21,14 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "AuthenController", urlPatterns = { "/authen" })
 public class AuthenController extends HttpServlet {
 
+    // URL constants
+    private static final String LOGIN_PAGE = "view/authen/login.jsp";
+    private static final String REGISTER_PAGE = "view/authen/register.jsp";
+    private static final String ENTER_EMAIL_PAGE = "view/authen/enterEmailForgotPassword.jsp";
+    private static final String VERIFY_OTP_PAGE = "view/authen/verifyOTP.jsp";
+    private static final String RESET_PASSWORD_PAGE = "view/authen/resetPassword.jsp";
+    private static final String HOME_PAGE = "home";
+
     AccountDAO accountDAO = new AccountDAO();
 
     @Override
@@ -34,20 +42,20 @@ public class AuthenController extends HttpServlet {
         String url;
         switch (action) {
             case "login":
-                // url = "view/authen/login.jsp";
-                url = fakeLogin(request, response);
+                url = LOGIN_PAGE;
+                // url = fakeLogin(request, response);
                 break;
             case "logout":
                 url = logOut(request, response);
                 break;
             case "sign-up":
-                url = "view/authen/register.jsp";
+                url = REGISTER_PAGE;
                 break;
             case "enter-email":
-                url = "view/authen/enterEmailForgotPassword.jsp";
+                url = ENTER_EMAIL_PAGE;
                 break;
             default:
-                url = "view/authen/login.jsp";
+                url = LOGIN_PAGE;
         }
 
         // chuyen trang
@@ -80,7 +88,7 @@ public class AuthenController extends HttpServlet {
                 url = resetPassword(request, response);
                 break;
             default:
-                url = "home";
+                url = HOME_PAGE;
         }
         request.getRequestDispatcher(url).forward(request, response);
 
@@ -88,7 +96,7 @@ public class AuthenController extends HttpServlet {
 
     private String logOut(HttpServletRequest request, HttpServletResponse response) {
         request.getSession().removeAttribute(GlobalConfig.SESSION_ACCOUNT);
-        return "home";
+        return HOME_PAGE;
     }
 
     private String loginDoPost(HttpServletRequest request, HttpServletResponse response) {
@@ -107,11 +115,11 @@ public class AuthenController extends HttpServlet {
         if (accFoundByUsernamePass != null) {
             request.getSession().setAttribute(GlobalConfig.SESSION_ACCOUNT,
                     accFoundByUsernamePass);
-            url = "home";
+            url = HOME_PAGE;
             // false => quay tro lai trang login ( set them thong bao loi )
         } else {
             request.setAttribute("error", "Username or password incorrect!!");
-            url = "view/authen/login.jsp";
+            url = LOGIN_PAGE;
         }
         return url;
     }
@@ -129,7 +137,7 @@ public class AuthenController extends HttpServlet {
         // Kiểm tra mật khẩu và xác nhận mật khẩu có khớp không
         if (!password.equals(confirmPassword)) {
             request.setAttribute("error", "Password and confirm password not matching");
-            return "view/authen/register.jsp";
+            return REGISTER_PAGE;
         }
 
         // Kiểm tra xem email đã tồn tại trong db chưa
@@ -151,7 +159,7 @@ public class AuthenController extends HttpServlet {
             } else {
                 request.setAttribute("error", "Email already exists!");
             }
-            url = "view/authen/register.jsp";
+            url = REGISTER_PAGE;
         } else {
             // Lưu tài khoản vào database
             int accountId = accountDAO.insert(account);
@@ -168,10 +176,10 @@ public class AuthenController extends HttpServlet {
                 session.setAttribute("otp", otp);
                 session.setAttribute("otp_purpose", "activation"); // Thêm mục đích OTP
 
-                url = "view/authen/verifyOTP.jsp";
+                url = VERIFY_OTP_PAGE;
             } else {
                 request.setAttribute("error", "Failed to create account. Please try again.");
-                url = "view/authen/register.jsp";
+                url = REGISTER_PAGE;
             }
         }
         return url;
@@ -194,12 +202,12 @@ public class AuthenController extends HttpServlet {
                 return handlePasswordReset(request, session);
             } else {
                 request.setAttribute("error", "Invalid OTP purpose.");
-                return "view/authen/otp-verification.jsp";
+                return VERIFY_OTP_PAGE;
             }
         } else {
             // Incorrect OTP
             request.setAttribute("error", "Incorrect OTP. Please try again.");
-            return "view/authen/otp-verification.jsp";
+            return VERIFY_OTP_PAGE;
         }
     }
 
@@ -214,7 +222,7 @@ public class AuthenController extends HttpServlet {
         if (foundAccount == null) {
             // Email không tìm thấy trong cơ sở dữ liệu
             request.setAttribute("error", "No account found with this email address.");
-            url = "view/authen/enterEmailForgotPassword.jsp";
+            url = ENTER_EMAIL_PAGE;
             return url;
         }
 
@@ -231,7 +239,7 @@ public class AuthenController extends HttpServlet {
         // Đặt thời gian hết hạn cho session (ví dụ: 15 phút)
         session.setMaxInactiveInterval(15 * 60);
 
-        url = "view/authen/verifyOTP.jsp";
+        url = VERIFY_OTP_PAGE;
         return url;
     }
 
@@ -241,16 +249,16 @@ public class AuthenController extends HttpServlet {
             account.setIsActive(true);
             accountDAO.activateAccount(account.getUserId());
             request.setAttribute("message", "Your account has been successfully activated!");
-            return "home";
+            return HOME_PAGE;
         } else {
             request.setAttribute("error", "Session expired. Please sign up again.");
-            return "view/authen/register.jsp";
+            return REGISTER_PAGE;
         }
     }
 
     private String handlePasswordReset(HttpServletRequest request, HttpSession session) {
         // Redirect to password reset page
-        return "view/authen/resetPassword.jsp";
+        return RESET_PASSWORD_PAGE;
     }
 
     private String resetPassword(HttpServletRequest request, HttpServletResponse response) {
@@ -261,7 +269,7 @@ public class AuthenController extends HttpServlet {
 
         if (!newPassword.equals(confirmPassword)) {
             request.setAttribute("error", "Passwords do not match.");
-            return "view/authen/resetPassword.jsp";
+            return RESET_PASSWORD_PAGE;
         }
 
         Account account = Account.builder()
@@ -272,10 +280,10 @@ public class AuthenController extends HttpServlet {
         boolean updated = accountDAO.updatePassword(account);
         if (updated) {
             request.setAttribute("message", "Your password has been successfully reset.");
-            return "view/authen/login.jsp";
+            return LOGIN_PAGE;
         } else {
             request.setAttribute("error", "Failed to reset password. Please try again.");
-            return "view/authen/resetPassword.jsp";
+            return RESET_PASSWORD_PAGE;
         }
     }
 
@@ -295,11 +303,11 @@ public class AuthenController extends HttpServlet {
         if (accFoundByUsernamePass != null) {
             request.getSession().setAttribute(GlobalConfig.SESSION_ACCOUNT,
                     accFoundByUsernamePass);
-            url = "home";
+            url = HOME_PAGE;
             // false => quay tro lai trang login ( set them thong bao loi )
         } else {
             request.setAttribute("error", "Username or password incorrect!!");
-            url = "view/authen/login.jsp";
+            url = LOGIN_PAGE;
         }
         return url;
     }
