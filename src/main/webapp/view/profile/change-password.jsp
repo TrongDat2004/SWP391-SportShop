@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
     <title>Change Password || Clothing</title>
     <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
 </head>
 <body>
     <!-- Sidebar -->
@@ -79,5 +80,26 @@
 
     <!-- JS here -->
     <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toastMessage = "${sessionScope.toastMessage}";
+            var toastType = "${sessionScope.toastType}";
+            if (toastMessage) {
+                iziToast.show({
+                    title: toastType === 'success' ? 'Success' : 'Error',
+                    message: toastMessage,
+                    position: 'topRight',
+                    color: toastType === 'success' ? 'green' : 'red',
+                    timeout: 5000,
+                    onClosing: function() {
+                        fetch('${pageContext.request.contextPath}/remove-toast', {
+                            method: 'POST'
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html> 
