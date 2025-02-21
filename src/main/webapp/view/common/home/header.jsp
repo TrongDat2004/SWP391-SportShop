@@ -488,7 +488,7 @@
                         </button>
 
                         <!-- user profile -->
-                        <a href="login.html" class="user-btn icon-36px text-n100 hover-text-secondary2">
+                        <a href="${pageContext.request.contextPath}/authen?action=login" class="user-btn icon-36px text-n100 hover-text-secondary2">
                             <span class="text-2xl">
                                 <i class="ph ph-user"></i>
                             </span>

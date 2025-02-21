@@ -91,7 +91,7 @@
 
                                 <div class="text-center">
                                     <span class="text-n50">Don't have an account?</span>
-                                    <a href="register.html" class="text-secondary2 fw-medium">Register</a>
+                                    <a href="${pageContext.request.contextPath}/authen?action=sign-up" class="text-secondary2 fw-medium">Register</a>
                                 </div>
                                 <div class="mt-lg-8 mt-6">
                                     <a href="#" class="d-center gap-2 px-lg-8 px-md-6 px-4 py-lg-4 py-2 w-100 radius-8 border border-n100-1 bg-n0 text-n100">
