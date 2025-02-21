@@ -1,3 +1,39 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<style>
+    .user-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        
+        background-color: #fff;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+        z-index: 1;
+        border-radius: 4px;
+        padding: 8px 0;
+    }
+    
+    .dropdown-content a {
+        color: #333;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        transition: all 0.3s ease;
+    }
+    
+    .dropdown-content a:hover {
+        background-color: #f5f5f5;
+        color: #000;
+    }
+    
+    .user-dropdown:hover .dropdown-content {
+        display: block;
+    }
+</style>
 <header class="header-section position-fixed top-0 start-50 translate-middle-x" data-lenis-prevent="">
     <!-- top navbar -->
     <div class="top-navbar bg-n100 py-3 d-none d-lg-block">
@@ -87,10 +123,11 @@
 
                         <ul class="nav-menu-items d-lg-flex d-grid align-items-lg-center gap-lg-0 gap-lg-4 gap-1">
                             <li class="menu-item">
-                                <button class="slide-vertical" data-splitting="">Home
+                                <a href="${pageContext.request.contextPath}/home" class="" style="color: #000" data-splitting="">Home</a>
+                                <!-- <button class="slide-vertical" data-splitting="">Home
                                     <span class="menu-icon"><i class="ph-fill ph-caret-down"></i></span>
-                                </button>
-                                <ul class="sub-menu">
+                                </button> -->
+                                <!-- <ul class="sub-menu">
                                     <li class="menu-link">
                                         <a href="index.html" class="slide-horizontal" data-splitting="">Home One</a>
                                     </li>
@@ -98,7 +135,7 @@
                                         <a href="index-two.html" class="slide-horizontal" data-splitting="">Home
                                             Two</a>
                                     </li>
-                                </ul>
+                                </ul> -->
                             </li>
                             <li class="menu-link">
                                 <a href="about-us.html" class="slide-vertical" data-splitting="">About Us</a>
@@ -488,11 +525,25 @@
                         </button>
 
                         <!-- user profile -->
-                        <a href="${pageContext.request.contextPath}/authen?action=login" class="user-btn icon-36px text-n100 hover-text-secondary2">
-                            <span class="text-2xl">
-                                <i class="ph ph-user"></i>
-                            </span>
-                        </a>
+                        <div class="user-dropdown">
+                            <a href="/SWP391-Sport-Shop-DatNguyen/authen?action=login" class="user-btn icon-36px text-n100 hover-text-secondary2">
+                                <span class="text-2xl">
+                                    <i class="ph ph-user"></i>
+                                </span>
+                            </a>
+                            <div class="dropdown-content">
+                                <c:choose>
+                                    <c:when test="${not empty sessionScope.account}">
+                                        <a href="${pageContext.request.contextPath}/authen?action=profile">Profile</a>
+                                        <a href="${pageContext.request.contextPath}/authen?action=logout">Logout</a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="${pageContext.request.contextPath}/authen?action=login">Login</a>
+                                        <a href="${pageContext.request.contextPath}/authen?action=register">Register</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
 
                         <!-- wishlist btn -->
                         <a href="wishlist.html" class="wishlist-btn icon-36px position-relative text-n100 hover-text-secondary2">
