@@ -25,6 +25,8 @@
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/images/favicon.png" type="image/x-icon">
 
         <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
+        <!-- Add iziToast CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
     </head>
 
     <body>
@@ -92,6 +94,9 @@
                                 <div class="text-center">
                                     <span class="text-n50">Don't have an account?</span>
                                     <a href="${pageContext.request.contextPath}/authen?action=sign-up" class="text-secondary2 fw-medium">Register</a>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <a href="${pageContext.request.contextPath}/authen?action=enter-email" class="text-secondary2 fw-medium">Forgot Password?</a>
                                 </div>
                                 <div class="mt-lg-8 mt-6">
                                     <a href="#" class="d-center gap-2 px-lg-8 px-md-6 px-4 py-lg-4 py-2 w-100 radius-8 border border-n100-1 bg-n0 text-n100">
@@ -242,6 +247,28 @@
         <jsp:include page="../common/home/footer.jsp"></jsp:include>
         <!-- footer section end -->
         <script  src="${pageContext.request.contextPath}/assets/js/main.js"></script>
+        <!-- Add iziToast JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var toastMessage = "${sessionScope.toastMessage}";
+                var toastType = "${sessionScope.toastType}";
+                if (toastMessage) {
+                    iziToast.show({
+                        title: toastType === 'success' ? 'Success' : 'Error',
+                        message: toastMessage,
+                        position: 'topRight',
+                        color: toastType === 'success' ? 'green' : 'red',
+                        timeout: 5000,
+                        onClosing: function() {
+                            fetch('${pageContext.request.contextPath}/remove-toast', {
+                                method: 'POST'
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
     </body>
 
 </html>
