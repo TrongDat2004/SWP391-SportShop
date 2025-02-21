@@ -534,7 +534,7 @@
                             <div class="dropdown-content">
                                 <c:choose>
                                     <c:when test="${not empty sessionScope.account}">
-                                        <a href="${pageContext.request.contextPath}/authen?action=profile">Profile</a>
+                                        <a href="${pageContext.request.contextPath}/profile">Profile</a>
                                         <a href="${pageContext.request.contextPath}/authen?action=logout">Logout</a>
                                     </c:when>
                                     <c:otherwise>

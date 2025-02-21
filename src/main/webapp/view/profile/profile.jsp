@@ -9,6 +9,8 @@
 
     <title>User Profile || Clothing</title>
     <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+
 </head>
 <body>
     <!-- Sidebar -->
@@ -39,39 +41,31 @@
                     <div class="pb-24 ms-16 mb-24 me-16  mt--100">
                         <div class="text-center border border-top-0 border-start-0 border-end-0">
                             <img src="" alt="" class="border br-white border-width-2-px w-200-px h-120-px rounded-circle object-fit-cover">
-                            <h6 class="mb-0 mt-16">${user.firstName} ${user.lastName}</h6>
-                        <span class="text-secondary-light mb-16">${user.email}</span>
+                            <h6 class="mb-0 mt-16">${account.firstName} ${account.lastName}</h6>
+                        <span class="text-secondary-light mb-16">${account.email}</span>
                     </div>
                     <div class="mt-24">
                         <h6 class="text-xl mb-16">Personal Info</h6>
                         <ul>
                             <li class="d-flex align-items-center gap-1 mb-12">
                                 <span class="w-30 text-md fw-semibold text-primary-light">Full Name</span>
-                                <span class="w-70 text-secondary-light fw-medium">: ${user.firstName} ${user.lastName}</span>
+                                <span class="w-70 text-secondary-light fw-medium">: ${account.firstName} ${account.lastName}</span>
                             </li>
                             <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> Email</span>
-                                <span class="w-70 text-secondary-light fw-medium">: ${user.email}</span>
+                                <span class="w-30 text-md fw-semibold text-primary-light">Email</span>
+                                <span class="w-70 text-secondary-light fw-medium">: ${account.email}</span>
                             </li>
                             <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> Phone Number</span>
-                                <span class="w-70 text-secondary-light fw-medium">: ${user.phone}</span>
+                                <span class="w-30 text-md fw-semibold text-primary-light">Phone Number</span>
+                                <span class="w-70 text-secondary-light fw-medium">: ${account.phone}</span>
                             </li>
                             <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> BirthDate</span>
-                                <span class="w-70 text-secondary-light fw-medium">: ${user.dob}</span>
+                                <span class="w-30 text-md fw-semibold text-primary-light">Address</span>
+                                <span class="w-70 text-secondary-light fw-medium">: ${account.address}</span>
                             </li>
                             <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> Sex</span>
-                                <span class="w-70 text-secondary-light fw-medium">: ${user.sex ? 'Male' : 'Female'}</span>
-                            </li>
-                            <li class="d-flex align-items-center gap-1 mb-12">
-                                <span class="w-30 text-md fw-semibold text-primary-light"> Role</span>
-                                <span class="w-70 text-secondary-light fw-medium">: ${user.roleId == 2 ? 'Sale' 
-                                                                                      : user.roleId == 3 ? 'Marketing' 
-                                                                                      : user.roleId == 4 ? 'User'
-                                                                                      : user.roleId == 5 ? 'Sale Manager' 
-                                                                                      : "Staff"}</span>
+                                <span class="w-30 text-md fw-semibold text-primary-light">Role</span>
+                                <span class="w-70 text-secondary-light fw-medium">: ${account.role}</span>
                             </li>
                         </ul>
                     </div>
@@ -93,45 +87,36 @@
                         <div class="tab-pane fade show active" id="pills-edit-profile" role="tabpanel" aria-labelledby="pills-edit-profile-tab" tabindex="0">
 
                             <form action="${pageContext.request.contextPath}/profile" method="POST">
-                                <input type="hidden" name="id" value="${user.id}">
+                                <input type="hidden" name="id" value="${account.userId}">
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <div class="mb-20">
                                             <label for="firstName" class="form-label fw-semibold text-primary-light text-sm mb-8">First Name</label>
-                                            <input type="text" class="form-control radius-8" id="firstName" name="firstName" value="${user.firstName}">
+                                            <input type="text" class="form-control radius-8" id="firstName" name="firstName" value="${account.firstName}">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="mb-20">
                                             <label for="lastName" class="form-label fw-semibold text-primary-light text-sm mb-8">Last Name</label>
-                                            <input type="text" class="form-control radius-8" id="lastName" name="lastName" value="${user.lastName}">
+                                            <input type="text" class="form-control radius-8" id="lastName" name="lastName" value="${account.lastName}">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="mb-20">
                                             <label for="email" class="form-label fw-semibold text-primary-light text-sm mb-8">Email</label>
-                                            <input type="email" class="form-control radius-8" id="email" name="email" value="${user.email}" readonly>
+                                            <input type="email" class="form-control radius-8" id="email" name="email" value="${account.email}" readonly>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="mb-20">
                                             <label for="phone" class="form-label fw-semibold text-primary-light text-sm mb-8">Phone</label>
-                                            <input type="text" class="form-control radius-8" id="phone" name="phone" value="${user.phone}">
+                                            <input type="text" class="form-control radius-8" id="phone" name="phone" value="${account.phone}">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-12">
                                         <div class="mb-20">
-                                            <label for="dob" class="form-label fw-semibold text-primary-light text-sm mb-8">BirthDate</label>
-                                            <input type="date" class="form-control radius-8" id="dob" name="dob" value="${user.dob}">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="mb-20">
-                                            <label for="sex" class="form-label fw-semibold text-primary-light text-sm mb-8">Sex</label>
-                                            <select class="form-control radius-8 form-select" id="sex" name="sex">
-                                                <option value="true" ${user.sex ? 'selected' : ''}>Male</option>
-                                                <option value="false" ${!user.sex ? 'selected' : ''}>Female</option>
-                                            </select>
+                                            <label for="address" class="form-label fw-semibold text-primary-light text-sm mb-8">Address</label>
+                                            <input type="text" class="form-control radius-8" id="address" name="address" value="${account.address}">
                                         </div>
                                     </div>
                                 </div>
@@ -163,6 +148,27 @@
 
 <!-- JS here -->
 <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var toastMessage = "${sessionScope.toastMessage}";
+                var toastType = "${sessionScope.toastType}";
+                if (toastMessage) {
+                    iziToast.show({
+                        title: toastType === 'success' ? 'Success' : 'Error',
+                        message: toastMessage,
+                        position: 'topRight',
+                        color: toastType === 'success' ? 'green' : 'red',
+                        timeout: 5000,
+                        onClosing: function() {
+                            fetch('${pageContext.request.contextPath}/remove-toast', {
+                                method: 'POST'
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
 
 
 </body>
