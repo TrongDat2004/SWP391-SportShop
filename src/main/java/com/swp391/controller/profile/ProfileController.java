@@ -9,6 +9,7 @@ import java.io.IOException;
 import com.swp391.config.GlobalConfig;
 import com.swp391.entity.Account;
 import com.swp391.dal.impl.AccountDAO;
+import com.swp391.utils.MD5PasswordEncoderUtils;
 
 @WebServlet(name = "ProfileController", urlPatterns = { "/profile", "/change-password" })
 public class ProfileController extends HttpServlet {
@@ -29,6 +30,8 @@ public class ProfileController extends HttpServlet {
         String pathRequest = request.getServletPath();
         if (pathRequest.equals("/profile")) {
             handleProfileRequest(request, response);
+        } else if (pathRequest.equals("/change-password")) {
+            handleChangePasswordRequest(request, response);
         } else {
             response.sendRedirect("authen?action=login");
         }
@@ -41,6 +44,8 @@ public class ProfileController extends HttpServlet {
 
         if ("/profile".equals(pathRequest)) {
             updateProfile(request, response);
+        } else if ("/change-password".equals(pathRequest)) {
+            changePassword(request, response);
         } else {
             doGet(request, response);
         }
@@ -67,7 +72,7 @@ public class ProfileController extends HttpServlet {
                 updatedAccount.setLastName(lastName);
                 updatedAccount.setPhone(phone);
                 updatedAccount.setAddress(address);
-                
+
                 // Giữ nguyên các thông tin không thay đổi
                 updatedAccount.setRole(currentAccount.getRole());
                 updatedAccount.setEmail(currentAccount.getEmail());
@@ -109,7 +114,7 @@ public class ProfileController extends HttpServlet {
             throws ServletException, IOException {
         // Lấy account từ session
         Account account = (Account) request.getSession().getAttribute(GlobalConfig.SESSION_ACCOUNT);
-        
+
         // Kiểm tra nếu chưa đăng nhập thì chuyển hướng về trang login
         if (account == null) {
             response.sendRedirect("authen?action=login");
@@ -118,10 +123,88 @@ public class ProfileController extends HttpServlet {
 
         // Tìm kiếm account mới nhất trong database
         Account updatedAccount = accountDAO.findById(account.getUserId());
-        
+
         // Đặt account vào request attribute và chuyển tiếp tới trang profile
         request.setAttribute("account", updatedAccount);
         request.getRequestDispatcher(PROFILE_JSP).forward(request, response);
     }
 
+    private void changePassword(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            // Lấy account từ session
+            Account account = (Account) request.getSession().getAttribute(GlobalConfig.SESSION_ACCOUNT);
+            
+            // Kiểm tra nếu account null
+            if (account == null) {
+                request.getSession().setAttribute("toastMessage", "Please login first!");
+                request.getSession().setAttribute("toastType", "error");
+                response.sendRedirect(LOGIN_JSP);
+                return;
+            }
+
+            String oldPassword = request.getParameter("oldPassword");
+            String newPassword = request.getParameter("newPassword");
+            String confirmPassword = request.getParameter("confirmPassword");
+
+            // Kiểm tra mật khẩu mới và xác nhận mật khẩu
+            if (!newPassword.equals(confirmPassword)) {
+                request.getSession().setAttribute("toastMessage", "New password and confirm password do not match!");
+                request.getSession().setAttribute("toastType", "error");
+                response.sendRedirect("change-password");
+                return;
+            }
+
+            // Tìm account trong database
+            Account updatedAccount = accountDAO.findById(account.getUserId());
+            if (updatedAccount == null) {
+                request.getSession().setAttribute("toastMessage", "Account not found!");
+                request.getSession().setAttribute("toastType", "error");
+                response.sendRedirect("change-password");
+                return;
+            }
+
+            // Kiểm tra mật khẩu cũ
+            if (!updatedAccount.getPassword().equals(MD5PasswordEncoderUtils.encodeMD5(oldPassword))) {
+                request.getSession().setAttribute("toastMessage", "Old password is incorrect!");
+                request.getSession().setAttribute("toastType", "error");
+                response.sendRedirect("change-password");
+                return;
+            }
+
+            // Cập nhật mật khẩu mới
+            updatedAccount.setPassword(MD5PasswordEncoderUtils.encodeMD5(newPassword));
+            boolean isUpdated = accountDAO.updatePassword(updatedAccount);
+            
+            if (isUpdated) {
+                // Cập nhật session và thông báo thành công
+                request.getSession().setAttribute(GlobalConfig.SESSION_ACCOUNT, updatedAccount);
+                request.getSession().setAttribute("toastMessage", "Password updated successfully!");
+                request.getSession().setAttribute("toastType", "success");
+            } else {
+                request.getSession().setAttribute("toastMessage", "Failed to update password!");
+                request.getSession().setAttribute("toastType", "error");
+            }
+            
+        } catch (Exception e) {
+            request.getSession().setAttribute("toastMessage", "An error occurred: " + e.getMessage());
+            request.getSession().setAttribute("toastType", "error");
+        }
+        response.sendRedirect("change-password");
+    }
+
+    private void handleChangePasswordRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Account account = (Account) request.getSession().getAttribute(GlobalConfig.SESSION_ACCOUNT);
+        if (account == null) {
+            request.getSession().setAttribute("toastMessage", "Please login first!");
+            request.getSession().setAttribute("toastType", "error");
+            response.sendRedirect("authen?action=login");
+            return;
+        }
+        // Tìm account mới nhất trong database
+        Account updatedAccount = accountDAO.findById(account.getUserId());
+        request.setAttribute("account", updatedAccount);
+        request.getRequestDispatcher(CHANGE_PASSWORD_JSP).forward(request, response);
+    }
 }
