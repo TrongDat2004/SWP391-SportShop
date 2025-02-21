@@ -99,7 +99,7 @@
                                     <a href="${pageContext.request.contextPath}/authen?action=enter-email" class="text-secondary2 fw-medium">Forgot Password?</a>
                                 </div>
                                 <div class="mt-lg-8 mt-6">
-                                    <a href="#" class="d-center gap-2 px-lg-8 px-md-6 px-4 py-lg-4 py-2 w-100 radius-8 border border-n100-1 bg-n0 text-n100">
+                                    <a href="https://accounts.google.com/o/oauth2/auth?scope=email profile openid&redirect_uri=http://localhost:9998/SWP391-Sport-Shop-DatNguyen/LoginGoogleHandler&response_type=code&client_id=974254864248-1mut4qdv8ps8vgtak6etojmg0m5thb0o.apps.googleusercontent.com&approval_prompt=force" class="d-center gap-2 px-lg-8 px-md-6 px-4 py-lg-4 py-2 w-100 radius-8 border border-n100-1 bg-n0 text-n100">
                                         <img src="${pageContext.request.contextPath}/assets/images/google.png" alt="google">
                                         <span>Login with google</span>
                                     </a>
