@@ -26,6 +26,13 @@
         <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
 
         <link href="assets/css/style.css" rel="stylesheet">
+        <style>
+            .error-message {
+                color: red;
+                font-size: 0.8em;
+                margin-top: 5px;
+            }
+        </style>
     </head>
 
     <body>
@@ -73,18 +80,21 @@
                                 <div class="register-logo mb-lg-15 mb-md-10 mb-8 mx-auto">
                                     <img class="w-100" src="${pageContext.request.contextPath}/assets/images/logo.png" alt="logo">
                                 </div>
-                                <form action="${pageContext.request.contextPath}/authen?action=sign-up" method="POST" class="d-grid gap-lg-6 gap-4 mb-lg-10 mb-md-8 mb-6">
+                                <form action="${pageContext.request.contextPath}/authen?action=sign-up" method="POST" class="d-grid gap-lg-6 gap-4 mb-lg-10 mb-md-8 mb-6" onsubmit="return validateForm()">
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Username</label>
                                         <input type="text" name="username" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Username" required>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">First Name</label>
                                         <input type="text" name="firstName" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your First Name" required>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Last Name</label>
                                         <input type="text" name="lastName" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Last Name" required>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Gender</label>
@@ -92,14 +102,17 @@
                                             <option value="true">Male</option>
                                             <option value="false">Female</option>
                                         </select>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Email</label>
                                         <input type="email" name="email" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Email" required>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Mobile</label>
                                         <input type="tel" name="mobile" class="py-lg-4 py-2 px-lg-6 px-4 w-100 bg-n0 text-n100 radius-8 border border-n100-1 focus-secondary2" placeholder="Enter Your Mobile Number" required>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Password</label>
@@ -109,6 +122,7 @@
                                                 <i class="ph ph-eye-slash"></i>
                                             </button>
                                         </div>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <div class="d-grid gap-lg-4 gap-2">
                                         <label class="text-n100 font-noto-sans text-base fw-normal">Confirm Password</label>
@@ -118,6 +132,7 @@
                                                 <i class="ph ph-eye-slash"></i>
                                             </button>
                                         </div>
+                                        <span class="error-message" style="display: none;"></span>
                                     </div>
                                     <button type="submit" class="btn-secondary py-lg-4 py-2 px-lg-6 px-4 radius-8 w-100">Register</button>
                                 </form>
@@ -276,6 +291,7 @@
         <jsp:include page="/view/common/home/footer.jsp" />
         <!-- footer section end -->
         <script src="${pageContext.request.contextPath}/assets/js/main.js"></script>
+        <script src="${pageContext.request.contextPath}/assets/js/validate.js"></script>
     </body>
 
 </html>
