@@ -46,7 +46,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
 
     @Override
     public boolean update(Account account) {
-        String sql = "UPDATE users SET username = ?, email = ?, password = ?, avatar = ?, first_name = ?, " +
+        String sql = "UPDATE account SET username = ?, email = ?, password = ?, avatar = ?, first_name = ?, " +
                 "last_name = ?, phone = ?, address = ?, role = ?, status = ?, is_active = ? WHERE user_id = ?";
 
         try {
