@@ -15,6 +15,8 @@ import java.io.PrintWriter;
 import com.swp391.dal.impl.AccountDAO;
 import com.swp391.entity.Account;
 import java.util.List;
+import jakarta.servlet.RequestDispatcher;
+import java.time.LocalDateTime;
 
 @WebServlet(name="ManageAccountController", urlPatterns={"/admin/manage-account"})
 public class ManageAccountController extends HttpServlet {
@@ -28,6 +30,9 @@ public class ManageAccountController extends HttpServlet {
         }
 
         switch (action) {
+            case "add":
+                showAddForm(request, response);
+                break;
             case "edit":
                 showEditForm(request, response);
                 break;
@@ -51,6 +56,9 @@ public class ManageAccountController extends HttpServlet {
         }
 
         switch (action) {
+            case "add":
+                addAccount(request, response);
+                break;
             case "update":
                 updateAccount(request, response);
                 break;
@@ -119,10 +127,10 @@ public class ManageAccountController extends HttpServlet {
 
         AccountDAO accountDAO = new AccountDAO();
         List<Account> accounts = accountDAO.findAccountsWithFilters(
-            roleFilter, genderFilter, statusFilter, searchFilter, page, pageSize);
+            roleFilter, statusFilter, searchFilter, page, pageSize);
         
         int totalAccounts = accountDAO.getTotalFilteredAccounts(
-            roleFilter, genderFilter, statusFilter, searchFilter);
+            roleFilter, statusFilter, searchFilter);
         
         int totalPages = (int) Math.ceil((double) totalAccounts / pageSize);
 
@@ -198,5 +206,61 @@ public class ManageAccountController extends HttpServlet {
     private void setToastMessage(HttpServletRequest request, String message, String type) {
         request.getSession().setAttribute("toastMessage", message);
         request.getSession().setAttribute("toastType", type);
+    }
+
+    private void showAddForm(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/view/admin/account-add.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void addAccount(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException, IOException {
+        try {
+            // Lấy thông tin từ request
+            String username = request.getParameter("username");
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            String firstName = request.getParameter("firstName");
+            String lastName = request.getParameter("lastName");
+            String phone = request.getParameter("phone");
+            String address = request.getParameter("address");
+            String role = request.getParameter("role");
+            boolean status = Boolean.parseBoolean(request.getParameter("status"));
+
+            // Tạo đối tượng Account mới
+            Account newAccount = Account.builder()
+                .username(username)
+                .email(email)
+                .password(password)
+                .firstName(firstName)
+                .lastName(lastName)
+                .phone(phone)
+                .address(address)
+                .role(role)
+                .status(status)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+            // Thêm account vào database
+            AccountDAO accountDAO = new AccountDAO();
+            boolean isSuccess = accountDAO.insert(newAccount) > 0;
+
+            // Xử lý kết quả
+            if (isSuccess) {
+                request.getSession().setAttribute("toastMessage", "Account added successfully!");
+                request.getSession().setAttribute("toastType", "success");
+            } else {
+                request.getSession().setAttribute("toastMessage", "Failed to add account!");
+                request.getSession().setAttribute("toastType", "error");
+            }
+        } catch (Exception e) {
+            request.getSession().setAttribute("toastMessage", "Error: " + e.getMessage());
+            request.getSession().setAttribute("toastType", "error");
+        }
+        
+        // Chuyển hướng về trang list
+        response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=list");
     }
 }
