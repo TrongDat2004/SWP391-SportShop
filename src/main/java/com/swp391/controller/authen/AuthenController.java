@@ -150,7 +150,7 @@ public class AuthenController extends HttpServlet {
                 .phone(mobile)
                 .email(email)
                 .password(MD5PasswordEncoderUtils.encodeMD5(password))
-                .role(GlobalConfig.ROLE_STUDENT)
+                .role(GlobalConfig.ROLE_USER)
                 .isActive(false)
                 .status(gender)
                 .build();
