@@ -10,6 +10,13 @@
     <title>Account Management || Clothing</title>
     <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+    <style>
+        .fixed-width-btn {
+            min-width: 120px; /* Có thể điều chỉnh giá trị này */
+            text-align: center;
+        }
+    </style>
+    
 </head>
 
 <body>
@@ -122,11 +129,22 @@
                                                class="btn btn-sm btn-primary">
                                                 <iconify-icon icon="material-symbols:edit"></iconify-icon>
                                             </a>
-                                            <button type="button" 
-                                                    class="btn btn-danger btn-sm"
-                                                    onclick="confirmDelete('${account.userId}')">
-                                                <i class="fas fa-trash-alt"></i> Delete
-                                            </button>
+                                            <c:choose>
+                                                <c:when test="${account.status}">
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-danger fixed-width-btn"
+                                                            onclick="confirmDeactivate('${account.userId}')">
+                                                        <i class="fas fa-trash-alt"></i> Deactivate
+                                                    </button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-success fixed-width-btn"
+                                                            onclick="confirmActivate('${account.userId}')">
+                                                        <i class="fas fa-check"></i> Activate
+                                                    </button>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
                                     </td>
                                 </tr>
@@ -206,9 +224,15 @@
 </html>
 
 <script>
-function confirmDelete(userId) {
-    if (confirm('Are you sure you want to delete this account?')) {
+function confirmDeactivate(userId) {
+    if (confirm('Are you sure you want to deactivate this account?')) {
         window.location.href = '${pageContext.request.contextPath}/admin/manage-account?action=deactivate&id=' + userId;
+    }
+}
+
+function confirmActivate(userId) {
+    if (confirm('Are you sure you want to activate this account?')) {
+        window.location.href = '${pageContext.request.contextPath}/admin/manage-account?action=activate&id=' + userId;
     }
 }
 </script>
