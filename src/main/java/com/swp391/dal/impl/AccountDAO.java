@@ -47,7 +47,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
     @Override
     public boolean update(Account account) {
         String sql = "UPDATE account SET username = ?, email = ?, password = ?, avatar = ?, first_name = ?, " +
-                "last_name = ?, phone = ?, address = ?, role = ?, status = ?, is_active = ? WHERE user_id = ?";
+                "last_name = ?, phone = ?, address = ?, role = ?, status = ? WHERE user_id = ?";
 
         try {
             connection = getConnection();
@@ -62,8 +62,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
             statement.setString(8, account.getAddress());
             statement.setString(9, account.getRole());
             statement.setObject(10, account.getStatus());
-            statement.setObject(11, account.getIsActive());
-            statement.setInt(12, account.getUserId());
+            statement.setInt(11, account.getUserId());
 
             int affectedRows = statement.executeUpdate();
             return affectedRows > 0;
@@ -84,7 +83,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
     @Override
     public int insert(Account account) {
         String sql = "INSERT INTO account (username, email, password, avatar, first_name, last_name, " +
-                "phone, address, role, status, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "phone, address, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
             connection = getConnection();
@@ -99,7 +98,6 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
             statement.setString(8, account.getAddress());
             statement.setString(9, account.getRole());
             statement.setObject(10, account.getStatus());
-            statement.setObject(11, account.getIsActive());
 
             int affectedRows = statement.executeUpdate();
 
@@ -135,7 +133,6 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         account.setAddress(rs.getString("address"));
         account.setRole(rs.getString("role"));
         account.setStatus(rs.getBoolean("status"));
-        account.setIsActive(rs.getBoolean("is_active"));
         account.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         account.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
         return account;
@@ -323,7 +320,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         return authorNames;
     }
 
-    public List<Account> findAccountsWithFilters(String roleFilter, String genderFilter,
+    public List<Account> findAccountsWithFilters(String roleFilter,
             String statusFilter, String searchFilter, int page, int pageSize) {
         List<Account> accounts = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM account WHERE 1=1 ");
@@ -335,13 +332,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
             params.add(roleFilter);
         }
 
-        if (genderFilter != null && !genderFilter.isEmpty()) {
-            sql.append("AND gender = ? ");
-            params.add(genderFilter.equals("Male"));
-        }
-
         if (statusFilter != null && !statusFilter.isEmpty()) {
-            sql.append("AND is_active = ? ");
+            sql.append("AND status = ? ");
             params.add(Boolean.parseBoolean(statusFilter));
         }
 
@@ -354,7 +346,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         }
 
         // Add pagination
-        sql.append("ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        sql.append("ORDER BY created_at LIMIT ? OFFSET ?");
         params.add(pageSize);
         params.add((page - 1) * pageSize);
 
@@ -377,7 +369,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         return accounts;
     }
 
-    public int getTotalFilteredAccounts(String roleFilter, String genderFilter,
+    public int getTotalFilteredAccounts(String roleFilter, 
             String statusFilter, String searchFilter) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM account WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
@@ -388,13 +380,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
             params.add(roleFilter);
         }
 
-        if (genderFilter != null && !genderFilter.isEmpty()) {
-            sql.append("AND gender = ? ");
-            params.add(genderFilter.equals("Male"));
-        }
-
         if (statusFilter != null && !statusFilter.isEmpty()) {
-            sql.append("AND is_active = ? ");
+            sql.append("AND status = ? ");
             params.add(Boolean.parseBoolean(statusFilter));
         }
 
