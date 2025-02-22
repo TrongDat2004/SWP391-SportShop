@@ -208,7 +208,7 @@
 <script>
 function confirmDelete(userId) {
     if (confirm('Are you sure you want to delete this account?')) {
-        window.location.href = '${pageContext.request.contextPath}/accounts/delete?id=' + userId;
+        window.location.href = '${pageContext.request.contextPath}/admin/manage-account?action=deactivate&id=' + userId;
     }
 }
 </script>
