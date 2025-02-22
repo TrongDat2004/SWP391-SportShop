@@ -95,7 +95,7 @@ public class ManageAccountController extends HttpServlet {
             Account account = accountDAO.findById(accountId);
             if (account != null) {
                 request.setAttribute("account", account);
-                request.getRequestDispatcher("/view/admin/edit-account.jsp").forward(request, response);
+                request.getRequestDispatcher("/view/admin/account-edit.jsp").forward(request, response);
                 return;
             }
         }
@@ -151,36 +151,64 @@ public class ManageAccountController extends HttpServlet {
 
     private void updateAccount(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        int accountId = Integer.parseInt(request.getParameter("id"));
-        String firstName = request.getParameter("firstName");
-        String lastName = request.getParameter("lastName");
-        String email = request.getParameter("email");
-        String phone = request.getParameter("phone");
-        String address = request.getParameter("address");
-        String role = request.getParameter("role");
-        boolean status = Boolean.parseBoolean(request.getParameter("status"));
+        try {
+            // Lấy thông tin từ request
+            int accountId = Integer.parseInt(request.getParameter("userId"));
+            // String username = request.getParameter("username");
+            // String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            String firstName = request.getParameter("firstName");
+            String lastName = request.getParameter("lastName");
+            String phone = request.getParameter("phone");
+            String address = request.getParameter("address");
+            // String role = request.getParameter("role");
+            boolean status = Boolean.parseBoolean(request.getParameter("status"));
 
-        Account account = new Account();
-        account.setUserId(accountId);
-        account.setFirstName(firstName);
-        account.setLastName(lastName);
-        account.setEmail(email);
-        account.setPhone(phone);
-        account.setAddress(address);
-        account.setRole(role);
-        account.setStatus(status);
+            // Lấy account từ database
+            AccountDAO accountDAO = new AccountDAO();
+            Account account = accountDAO.findById(accountId);
 
-        AccountDAO accountDAO = new AccountDAO();
-        boolean updated = accountDAO.update(account);
-
-        if (updated) {
-            setToastMessage(request, "Account updated successfully", "success");
-            response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=edit&id=" + accountId);
-        } else {
-            setToastMessage(request, "Failed to update account", "error");
-            request.setAttribute("account", account);
-            request.getRequestDispatcher("/view/admin/edit-account.jsp").forward(request, response);
+            if (account != null) {
+                // Cập nhật các trường có thể thay đổi
+                // account.setUsername(username);
+                // account.setEmail(email);
+                account.setFirstName(firstName);
+                account.setLastName(lastName);
+                account.setPhone(phone);
+                account.setAddress(address);
+                // account.setRole(role);
+                account.setStatus(status);
+                
+                // Cập nhật password nếu có
+                if (password != null && !password.isEmpty()) {
+                    account.setPassword(password);
+                }
+                
+                // Cập nhật thời gian chỉnh sửa
+                account.setUpdatedAt(LocalDateTime.now());
+                
+                // Thực hiện update
+                boolean isSuccess = accountDAO.update(account);
+                
+                // Xử lý kết quả
+                if (isSuccess) {
+                    request.getSession().setAttribute("toastMessage", "Account updated successfully!");
+                    request.getSession().setAttribute("toastType", "success");
+                } else {
+                    request.getSession().setAttribute("toastMessage", "Failed to update account!");
+                    request.getSession().setAttribute("toastType", "error");
+                }
+            } else {
+                request.getSession().setAttribute("toastMessage", "Account not found!");
+                request.getSession().setAttribute("toastType", "error");
+            }
+        } catch (Exception e) {
+            request.getSession().setAttribute("toastMessage", "Error: " + e.getMessage());
+            request.getSession().setAttribute("toastType", "error");
         }
+        
+        // Chuyển hướng về trang list
+        response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=list");
     }
 
     private void deactivateAccount(HttpServletRequest request, HttpServletResponse response)
