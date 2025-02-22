@@ -216,7 +216,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
     }
 
     public boolean activateAccount(int accountId) {
-        String sql = "UPDATE account SET Status = 'Active' WHERE id = ?";
+        String sql = "UPDATE account SET Status = true WHERE user_id = ?";
         try {
             connection = getConnection();
             statement = connection.prepareStatement(sql);
