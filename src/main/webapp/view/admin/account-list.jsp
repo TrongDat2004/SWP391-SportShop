@@ -118,7 +118,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a href="${pageContext.request.contextPath}/accounts/edit?id=${account.userId}" 
+                                            <a href="${pageContext.request.contextPath}/admin/manage-account?action=edit&id=${account.userId}" 
                                                class="btn btn-sm btn-primary">
                                                 <iconify-icon icon="material-symbols:edit"></iconify-icon>
                                             </a>
