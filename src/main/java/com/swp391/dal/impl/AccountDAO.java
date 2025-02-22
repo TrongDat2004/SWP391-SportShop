@@ -284,7 +284,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
     }
 
     public boolean deactivateAccount(int accountId) {
-        String sql = "UPDATE account SET Status = 'Inactive' WHERE id = ?";
+        String sql = "UPDATE account SET status = false WHERE user_id = ?";
         try {
             connection = getConnection();
             statement = connection.prepareStatement(sql);
