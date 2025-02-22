@@ -26,7 +26,6 @@ public class Account {
     private String address;
     private String role;
     private Boolean status;
-    private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
