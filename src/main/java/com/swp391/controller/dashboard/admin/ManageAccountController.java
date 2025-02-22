@@ -39,6 +39,9 @@ public class ManageAccountController extends HttpServlet {
             case "deactivate":
                 deactivateAccount(request, response);
                 break;
+            case "activate":
+                activateAccount(request, response);
+                break;
             case "list":
             default:
                 listAccounts(request, response);
@@ -223,6 +226,26 @@ public class ManageAccountController extends HttpServlet {
                 setToastMessage(request, "Account deactivated successfully", "success");
             } else {
                 setToastMessage(request, "Failed to deactivate account", "error");
+            }
+        } else {
+            setToastMessage(request, "Invalid account ID", "error");
+        }
+        
+        response.sendRedirect(request.getContextPath() + "/admin/manage-account");
+    }
+
+    private void activateAccount(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        String accountIdStr = request.getParameter("id");
+        if (accountIdStr != null && !accountIdStr.isEmpty()) {
+            int accountId = Integer.parseInt(accountIdStr);
+            AccountDAO accountDAO = new AccountDAO();
+            boolean activated = accountDAO.activateAccount(accountId);
+            
+            if (activated) {
+                setToastMessage(request, "Account activated successfully", "success");
+            } else {
+                setToastMessage(request, "Failed to activate account", "error");
             }
         } else {
             setToastMessage(request, "Invalid account ID", "error");
