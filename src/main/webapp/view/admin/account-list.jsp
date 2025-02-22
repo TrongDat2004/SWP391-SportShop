@@ -19,6 +19,23 @@
     <!-- Header -->
     <jsp:include page="../common/dashboard/header-dashboard.jsp"></jsp:include>
 
+    <c:url value="/admin/manage-account" var="paginationUrl">
+    <c:param name="action" value="list" />
+    <c:if test="${not empty param.role}">
+        <c:param name="role" value="${param.role}" />
+    </c:if>
+    <c:if test="${not empty param.gender}">
+        <c:param name="gender" value="${param.gender}" />
+    </c:if>
+    <c:if test="${not empty param.status}">
+        <c:param name="status" value="${param.status}" />
+    </c:if>
+    <c:if test="${not empty param.search}">
+        <c:param name="search" value="${param.search}" />
+    </c:if>
+</c:url>
+
+
     <div class="dashboard-main-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
             <h6 class="fw-semibold mb-0">Account Management</h6>
@@ -105,9 +122,10 @@
                                                class="btn btn-sm btn-primary">
                                                 <iconify-icon icon="material-symbols:edit"></iconify-icon>
                                             </a>
-                                            <button class="btn btn-sm btn-danger" 
-                                                    onclick="confirmDelete(${account.userId})">
-                                                <iconify-icon icon="material-symbols:delete"></iconify-icon>
+                                            <button type="button" 
+                                                    class="btn btn-danger btn-sm"
+                                                    onclick="confirmDelete('${account.userId}')">
+                                                <i class="fas fa-trash-alt"></i> Delete
                                             </button>
                                         </div>
                                     </td>
@@ -122,19 +140,23 @@
                     <ul class="pagination justify-content-center">
                         <c:if test="${currentPage > 1}">
                             <li class="page-item">
-                                <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
+                                <a class="page-link" href="${paginationUrl}&page=${currentPage - 1}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
                             </li>
                         </c:if>
-                        
+
                         <c:forEach begin="1" end="${totalPages}" var="i">
-                            <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                <a class="page-link" href="?page=${i}">${i}</a>
+                            <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                <a class="page-link" href="${paginationUrl}&page=${i}">${i}</a>
                             </li>
                         </c:forEach>
-                        
+
                         <c:if test="${currentPage < totalPages}">
                             <li class="page-item">
-                                <a class="page-link" href="?page=${currentPage + 1}">Next</a>
+                                <a class="page-link" href="${paginationUrl}&page=${currentPage + 1}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
                             </li>
                         </c:if>
                     </ul>
@@ -163,7 +185,16 @@
                     timeout: 5000,
                     onClosing: function() {
                         fetch('${pageContext.request.contextPath}/remove-toast', {
-                            method: 'POST'
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                        }).then(response => {
+                            if (!response.ok) {
+                                console.error('Failed to remove toast attributes');
+                            }
+                        }).catch(error => {
+                            console.error('Error:', error);
                         });
                     }
                 });
@@ -181,3 +212,4 @@ function confirmDelete(userId) {
     }
 }
 </script>
+
