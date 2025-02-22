@@ -326,19 +326,18 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
     public List<Account> findAccountsWithFilters(String roleFilter, String genderFilter,
             String statusFilter, String searchFilter, int page, int pageSize) {
         List<Account> accounts = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM account WHERE role_id != ? ");
+        StringBuilder sql = new StringBuilder("SELECT * FROM account WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
-        params.add(GlobalConfig.ROLE_ADMIN);
 
-        // Add filters to query
+        // Add filters
         if (roleFilter != null && !roleFilter.isEmpty()) {
-            sql.append("AND role_id = ? ");
-            params.add(Integer.parseInt(roleFilter));
+            sql.append("AND role = ? ");
+            params.add(roleFilter);
         }
 
         if (genderFilter != null && !genderFilter.isEmpty()) {
             sql.append("AND gender = ? ");
-            params.add(genderFilter.equals("2")); // 2 for male, 3 for female
+            params.add(genderFilter.equals("Male"));
         }
 
         if (statusFilter != null && !statusFilter.isEmpty()) {
@@ -347,7 +346,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         }
 
         if (searchFilter != null && !searchFilter.trim().isEmpty()) {
-            sql.append("AND (email LIKE ? OR username LIKE ? OR full_name LIKE ?) ");
+            sql.append("AND (email LIKE ? OR username LIKE ? OR CONCAT(first_name, ' ', last_name) LIKE ?) ");
             String searchPattern = "%" + searchFilter.trim() + "%";
             params.add(searchPattern);
             params.add(searchPattern);
@@ -355,15 +354,13 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         }
 
         // Add pagination
-        sql.append("ORDER BY id LIMIT ? OFFSET ?");
+        sql.append("ORDER BY created_at DESC LIMIT ? OFFSET ?");
         params.add(pageSize);
         params.add((page - 1) * pageSize);
 
         try {
             connection = getConnection();
             statement = connection.prepareStatement(sql.toString());
-
-            // Set parameters
             for (int i = 0; i < params.size(); i++) {
                 statement.setObject(i + 1, params.get(i));
             }
@@ -380,30 +377,29 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         return accounts;
     }
 
-    public int getTotalFilteredAccounts(String roleFilter, String genderFilter, 
+    public int getTotalFilteredAccounts(String roleFilter, String genderFilter,
             String statusFilter, String searchFilter) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM account WHERE role_id != ? ");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM account WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
-        params.add(GlobalConfig.ROLE_ADMIN);
 
-        // Add filters to query
+        // Add filters
         if (roleFilter != null && !roleFilter.isEmpty()) {
-            sql.append("AND role_id = ? ");
-            params.add(Integer.parseInt(roleFilter));
+            sql.append("AND role = ? ");
+            params.add(roleFilter);
         }
-        
+
         if (genderFilter != null && !genderFilter.isEmpty()) {
             sql.append("AND gender = ? ");
-            params.add(genderFilter.equals("2")); // 2 for male, 3 for female
+            params.add(genderFilter.equals("Male"));
         }
-        
+
         if (statusFilter != null && !statusFilter.isEmpty()) {
             sql.append("AND is_active = ? ");
             params.add(Boolean.parseBoolean(statusFilter));
         }
-        
+
         if (searchFilter != null && !searchFilter.trim().isEmpty()) {
-            sql.append("AND (email LIKE ? OR username LIKE ? OR full_name LIKE ?) ");
+            sql.append("AND (email LIKE ? OR username LIKE ? OR CONCAT(first_name, ' ', last_name) LIKE ?) ");
             String searchPattern = "%" + searchFilter.trim() + "%";
             params.add(searchPattern);
             params.add(searchPattern);
@@ -413,12 +409,10 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         try {
             connection = getConnection();
             statement = connection.prepareStatement(sql.toString());
-            
-            // Set parameters
             for (int i = 0; i < params.size(); i++) {
                 statement.setObject(i + 1, params.get(i));
             }
-            
+
             resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
