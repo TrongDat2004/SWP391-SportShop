@@ -151,8 +151,8 @@ public class AuthenController extends HttpServlet {
                 .email(email)
                 .password(MD5PasswordEncoderUtils.encodeMD5(password))
                 .role(GlobalConfig.ROLE_USER)
-                .isActive(false)
-                .status(gender)
+                // .stat(false)
+                .status(false)
                 .build();
         Account accountFoundByEmail = accountDAO.findByEmail(account);
 
@@ -257,7 +257,7 @@ public class AuthenController extends HttpServlet {
     private String handleAccountActivation(HttpServletRequest request, HttpSession session) {
         Account account = (Account) session.getAttribute(GlobalConfig.SESSION_ACCOUNT);
         if (account != null) {
-            account.setIsActive(true);
+            account.setStatus(true);
             accountDAO.activateAccount(account.getUserId());
             request.setAttribute("message", "Your account has been successfully activated!");
             return HOME_PAGE;
