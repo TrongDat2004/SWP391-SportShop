@@ -80,7 +80,7 @@ public class ProfileController extends HttpServlet {
                 updatedAccount.setPassword(currentAccount.getPassword());
                 updatedAccount.setAvatar(currentAccount.getAvatar());
                 updatedAccount.setStatus(currentAccount.getStatus());
-                updatedAccount.setIsActive(currentAccount.getIsActive());
+                // updatedAccount.setIsActive(currentAccount.getIsActive());
 
                 // Cập nhật vào database
                 boolean isUpdated = accountDAO.update(updatedAccount);
