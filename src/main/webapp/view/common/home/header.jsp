@@ -137,9 +137,9 @@
                                     </li>
                                 </ul> -->
                             </li>
-                            <li class="menu-link">
+<!--                            <li class="menu-link">
                                 <a href="about-us.html" class="slide-vertical" data-splitting="">About Us</a>
-                            </li>
+                            </li>-->
                             <li class="menu-item">
                                 <button class="slide-vertical" data-splitting="">Services
                                     <span class="menu-icon"><i class="ph-fill ph-caret-down"></i></span>

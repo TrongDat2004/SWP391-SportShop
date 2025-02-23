@@ -34,8 +34,8 @@ public class GlobalUtils {
         account.setUsername(userGoogleDto.getEmail());
         account.setEmail(userGoogleDto.getEmail());
         account.setPassword(""); // Set default or encrypted password
-        account.setRole(GlobalConfig.ROLE_STUDENT); // Default role ID, adjust as needed
-        account.setIsActive(true);
+        account.setRole(GlobalConfig.ROLE_USER); // Default role ID, adjust as needed
+//        account.setIsActive(true);
         return account;
     }
 

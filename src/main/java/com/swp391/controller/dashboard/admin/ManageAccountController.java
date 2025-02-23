@@ -156,7 +156,7 @@ public class ManageAccountController extends HttpServlet {
     throws ServletException, IOException {
         try {
             // Lấy thông tin từ request
-            int accountId = Integer.parseInt(request.getParameter("userId"));
+            int accountId = Integer.parseInt(request.getParameter("id"));
             // String username = request.getParameter("username");
             // String email = request.getParameter("email");
             String password = request.getParameter("password");
