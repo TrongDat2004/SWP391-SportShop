@@ -117,6 +117,7 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
 
     @Override
     public boolean update(Voucher voucher) {
+
         String sql = "UPDATE voucher SET code = ?, discount_amount = ?, status = ?, start_date = ?, expiration_date = ?, max_usage=?  WHERE voucher_id = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -125,7 +126,6 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
             stmt.setInt(3, voucher.getStatus());
             stmt.setDate(4, Date.valueOf(voucher.getStartDate()));
             stmt.setDate(5, Date.valueOf(voucher.getExpirationDate()));
-            stmt.setInt(6, voucher.getMaxUsage());
             stmt.setInt(6, voucher.getVoucherId());
 
             return stmt.executeUpdate() > 0;

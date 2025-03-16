@@ -138,7 +138,9 @@ public class CheckoutController extends HttpServlet {
         // Tạo danh sách sản phẩm trong đơn hàng
         List<OrderItem> orderItems = cartItems.stream().map(item
                 -> OrderItem.builder()
+
                         .orderId(null) 
+
                         .productId(item.getProduct().getProductId())
                         .quantity(item.getQuantity())
                         .price(item.getProduct().getPrice())
