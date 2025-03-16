@@ -23,7 +23,9 @@ import java.util.List;
 public class BlogController extends HttpServlet {
 
     private final BlogDAO blogDAO = new BlogDAO();
+
     private static final int PAGE_SIZE = 3; 
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
