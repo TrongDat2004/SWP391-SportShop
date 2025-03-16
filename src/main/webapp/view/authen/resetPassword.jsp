@@ -25,7 +25,7 @@
         <meta name="twitter:image" content="${pageContext.request.contextPath}/assets/images/logo.png">
         <meta name="twitter:site" content="@CycleCity">
 
-        <title>CycleCity | Reset Password</title>
+        <title>ShopSport | Reset Password</title>
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/images/favicon.png"
             type="image/x-icon">
         <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">

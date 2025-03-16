@@ -1,30 +1,19 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<c:set var="account" value="${sessionScope.account}" />
+<c:set var="userRole" value="${account != null ? account.role : null}" />
+<!doctype html>
 <html lang="en">
-    <!-- head -->
     <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="CycleCity offers a wide range of bicycles, gear, and accessories for every type of cyclist. Explore our collection and gear up for your next adventure!">
-        <meta name="keywords" content="bicycles, bikes, cycling gear, bike accessories, mountain bikes, road bikes, CycleCity">
-        <meta name="author" content="CycleCity Team">
-
-        <meta property="og:title" content="CycleCity | Quality Bicycles and Cycling Gear">
-        <meta property="og:description" content="Discover the best selection of bicycles, gear, and accessories at CycleCity. Shop now for top brands and quality service.">
-        <meta property="og:image" content="../assets/images/logo.png">
-        <meta property="og:url" content="">
-        <meta property="og:type" content="website">
-
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="CycleCity | Quality Bicycles and Cycling Gear">
-        <meta name="twitter:description" content="Explore the latest in bicycles, cycling gear, and accessories at CycleCity. Gear up for your next adventure!">
-        <meta name="twitter:image" content="../assets/images/logo.png">
-        <meta name="twitter:site" content="@CycleCity">
-
-        <title>CycleCity | Your Hub for Quality Bicycles, Gear, and Accessories</title>
-        <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="assets/images/favi.jpg" sizes="16x16">
+        <title>SportShop | Your Hub for Quality Sports equipment, Gear, and Accessories</title>
+        <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
         <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     </head>
 
     <body>
@@ -34,12 +23,6 @@
                 <i class="ph ph-arrow-up"></i>
             </span>
         </button>
-        <!-- include header -->
-        <!-- header -->
-        <!-- mouse -->
-        <div class="cursor"></div>
-        <div class="cursor-follower"></div>
-
 
         <!-- header section start -->
         <jsp:include page="../common/home/header.jsp"></jsp:include>
@@ -267,12 +250,75 @@
                         font-size: 20px;
                     }
                 }
+                .feedback-container {
+                    background-color: #fff; /* var(--white) */
+                    border-radius: 8px; /* var(--radius) */
+                    padding: 30px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* var(--shadow) */
+                }
+
+                .feedback-container h3 {
+                    font-size: 1.5rem;
+                    margin-bottom: 20px;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #f5f7fa; /* var(--light-gray) */
+                }
+
+                .feedback-item {
+                    padding: 20px;
+                    border-radius: 8px; /* var(--radius) */
+                    background-color: #f5f7fa; /* var(--light-gray) */
+                    margin-bottom: 20px;
+                    transition: all 0.3s ease; /* var(--transition) */
+                }
+
+                .feedback-item:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* var(--shadow) */
+                }
+
+                .feedback-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 10px;
+                }
+
+                .feedback-header small {
+                    color: #8d99ae; /* var(--dark-gray) */
+                }
+
+                .rating {
+                    color: #ffb703; /* var(--warning) */
+                    font-weight: 600;
+                }
+
+                .feedback-content {
+                    color: #333; /* var(--text-color) */
+                    line-height: 1.7;
+                }
+                .no-feedback {
+                    text-align: center;
+                    color: #8d99ae;
+                    font-style: italic;
+                    padding: 15px;
+                }
+
             </style>
             <main class="pt-12">
-                <section class="product-section px-xl-20 px-lg-10 px-sm-7 pt-120 pb-120">
-                    <!-- tab content 1 -->
-                    <div class="tab-content active" data-tab="all">
-                        <div class="row g-0 mb-1">
+            <c:set var="totalRating" value="0" />
+            <c:set var="count" value="0" />
+
+            <c:forEach var="fb" items="${feedbacks}">
+                <c:set var="totalRating" value="${totalRating + fb.rating}" />
+                <c:set var="count" value="${count + 1}" />
+            </c:forEach>
+
+            <c:set var="averageRating" value="${count > 0 ? totalRating / count : 0}" />
+            <section class="product-section px-xl-20 px-lg-10 px-sm-7 pt-120 pb-120">
+                <!-- tab content 1 -->
+                <div class="tab-content active" data-tab="all">
+                    <div class="row g-0 mb-1">
                         <c:if test="${product != null}">
                             <div class="product-detail-container">
                                 <div class="product-image">
@@ -285,13 +331,13 @@
 
                                     <c:choose>
                                         <c:when test="${product.stock > 10}">
-                                            <p class="stock">Còn hàng (${product.stock} sản phẩm)</p>
+                                            <p class="stock">In stock (${product.stock} items)</p>
                                         </c:when>
                                         <c:when test="${product.stock > 0 && product.stock <= 10}">
-                                            <p class="stock low">Sắp hết hàng (${product.stock} sản phẩm)</p>
+                                            <p class="stock low">Low stock (${product.stock} items left)</p>
                                         </c:when>
                                         <c:otherwise>
-                                            <p class="stock out">Hết hàng</p>
+                                            <p class="stock out">Out of stock</p>
                                         </c:otherwise>
                                     </c:choose>
 
@@ -300,155 +346,49 @@
                                         <input type="hidden" name="action" value="add">
 
                                         <div class="form-group">
-                                            <label for="quantity">Số lượng:</label>
+                                            <label for="quantity">Quantity:</label>
                                             <div class="quantity-control">
                                                 <button type="button" class="quantity-btn" onclick="decreaseQuantity()">-</button>
                                                 <input type="number" name="quantity" id="quantity" min="1" max="${product.stock}" value="1" class="quantity-input">
                                                 <button type="button" class="quantity-btn" onclick="increaseQuantity()">+</button>
                                             </div>
                                         </div>
-
-                                        <button type="submit" class="add-to-cart-btn" ${product.stock <= 0 ? 'disabled' : ''}>
-                                            <i class="fas fa-shopping-cart"></i>
-                                            Thêm vào giỏ hàng
-                                        </button>
+                                        <div class="average-rating">
+                                            <h3>Average Rating: <span>${averageRating}</span>/5 ⭐</h3>
+                                        </div>
+                                        <c:if test="${userRole != 'admin'}">
+                                            <button type="submit" class="add-to-cart-btn" ${product.stock <= 0 ? 'disabled' : ''}>
+                                                <i class="fas fa-shopping-cart"></i>
+                                                Add to Cart
+                                            </button>
+                                        </c:if>
                                     </form>
                                 </div>
                             </div>
                         </c:if>
                     </div>
                 </div>
-            </section>
-            <!-- product section end -->
-
-            <!-- gallery slider -->
-            <!-- gallery slider start -->
-            <div class="overflow-hidden position-relative z-0">
-                <div class="swiper gallery-slider">
-                    <div class="swiper-wrapper align-items-center z-1">
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-1.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
+                <div class="feedback-container">
+                    <h3>Customer Reviews: <span>${averageRating}</span>/5 ⭐</h3>
+                    <c:choose>
+                        <c:when test="${empty feedbacks}">
+                            <p class="no-feedback">No reviews yet. Be the first to review this product!</p>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach var="fb" items="${feedbacks}">
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <p><strong>${fb.user.username}</strong> <small>Posted on: ${fb.createdAt}</small></p>
+                                        <p class="rating">⭐ ${fb.rating}/5</p>
+                                    </div>
+                                    <p class="feedback-content">${fb.content}</p>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-2.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-3.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-4.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-5.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-6.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-7.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-8.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide w-fit z-1">
-                            <div class="gallery-item position-relative">
-                                <img src="${pageContext.request.contextPath}/assets/images/gallery-9.png" alt="gallery logo">
-                                <div class="overlay position-absolute top-0 start-0 w-100 h-100 d-center">
-                                    <a href="#" class="icon-52px bg-n0 text-secondary2 text-xl hover-bg-primary2 hover-text-n0">
-                                        <i class="ph ph-instagram-logo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
-            </div>
-            <!-- gallery slider end -->
 
-            <!-- call to action -->
-            <!-- call to action section start -->
-            <section class="call-to-action-section px-xl-20 px-lg-10 px-sm-7 pt-120 pb-120 bg-n100">
-                <div class="container-fluid">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-8">
-                            <div class="text-center mb-lg-8 mb-6">
-                                <h2 class="text-animation-word display-four text-n0 text-uppercase mb-lg-5 mb-3">
-                                    JOIN THE
-                                    <span class="text-secondary2 text-decoration-underline">CYCLECITY</span>
-                                    COMMUNITY
-                                </h2>
-                                <p class="text-sm text-n30 fw-normal ch-100 mx-auto">
-                                    Stay updated with the latest in cycling. Sign up for our newsletter to receive exclusive
-                                    offers, product updates, and tips straight to your inbox. Join our biking community
-                                    today!
-                                </p>
-                            </div>
-                            <form action="#" class="d-center flex-wrap flex-sm-nowrap cta-form mx-auto">
-                                <input type="email" placeholder="Enter your email address" class="bg-transparent text-n0  py-lg-4 py-3 px-lg-6 px-4 border border-n20-1 focus-primary">
-                                <button type="submit" class="text-n100 fw-medium text-capitalize bg-n0 font-instrument py-lg-4 py-3 px-lg-6 px-4 hover-text-n0 box-style box-primary2">Subscribe</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
             </section>
-            <!-- call to action section end -->
-
         </main>
         <!-- main end -->
 

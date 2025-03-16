@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package com.swp391.controller.authen;
 
 import jakarta.servlet.ServletException;
@@ -18,7 +17,7 @@ import com.swp391.utils.MD5PasswordEncoderUtils;
 import com.swp391.utils.EmailUtils;
 import jakarta.servlet.http.HttpSession;
 
-@WebServlet(name = "AuthenController", urlPatterns = { "/authen" })
+@WebServlet(name = "AuthenController", urlPatterns = {"/authen"})
 public class AuthenController extends HttpServlet {
 
     // URL constants
@@ -113,9 +112,14 @@ public class AuthenController extends HttpServlet {
         Account accFoundByUsernamePass = accountDAO.findByEmailOrUsernameAndPass(account);
         // true => trang home ( set account vao trong session )
         if (accFoundByUsernamePass != null) {
-            request.getSession().setAttribute(GlobalConfig.SESSION_ACCOUNT,
-                    accFoundByUsernamePass);
-            url = HOME_PAGE;
+            if (!accFoundByUsernamePass.getStatus()) {
+                request.setAttribute("error", "Your account is locked!!");
+                url = LOGIN_PAGE;
+            } else {
+                request.getSession().setAttribute(GlobalConfig.SESSION_ACCOUNT,
+                        accFoundByUsernamePass);
+                url = HOME_PAGE;
+            }
             // false => quay tro lai trang login ( set them thong bao loi )
         } else {
             request.setAttribute("error", "Username or password incorrect!!");
@@ -275,7 +279,7 @@ public class AuthenController extends HttpServlet {
     private String resetPassword(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         String email = (String) session.getAttribute("email");
-        
+
         if (email == null) {
             session.setAttribute("toastMessage", "Session expired. Please start the password reset process again.");
             session.setAttribute("toastType", "error");

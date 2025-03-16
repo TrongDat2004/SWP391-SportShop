@@ -41,7 +41,7 @@ public class GlobalConfig {
      * GOOGLE_REDIRECT_URI: URI được sử dụng để đổi mã xác thực (authorization code)
      * lấy từ Google thành mã truy cập (access token)
      */
-    public static String GOOGLE_REDIRECT_URI = "http://localhost:9998/SWP391-Sport-Shop-DatNguyen/LoginGoogleHandler";
+    public static String GOOGLE_REDIRECT_URI = "http://localhost:8080/SWP391-Sport-Shop/LoginGoogleHandler";
 
     /**
      * GOOGLE_LINK_GET_TOKEN: Liên kết để trao đổi mã xác thực từ Google để lấy mã

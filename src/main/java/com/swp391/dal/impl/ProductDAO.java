@@ -266,6 +266,26 @@ public class ProductDAO extends DBContext implements I_DAO<Product> {
         return products;
     }
 
+    public List<Product> getLatestActiveProducts() {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT * FROM products WHERE status = 1 ORDER BY created_at DESC LIMIT 6";
+
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                products.add(getFromResultSet(resultSet));
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        } finally {
+            closeResources();
+        }
+        return products;
+    }
+
     public int countProducts(String keyword, Integer categoryId, BigDecimal minPrice, BigDecimal maxPrice) {
         int totalCount = 0;
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM products WHERE status = 1");

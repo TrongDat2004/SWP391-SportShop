@@ -8,10 +8,10 @@
                         <div class="col-lg-4 col-auto">
                             <div class="mb-lg-6 mb-4">
                                 <div class="footer-logo mb-lg-4 mb-2">
-                                    <img src="${pageContext.request.contextPath}/assets/images/logo-white.png" alt="logo">
+                                    <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="logo">
                                 </div>
                                 <p class="text-n0 text-base fw-normal ch-40">
-                                    elling premium products, designed to
+                                    Selling premium products, designed to
                                     elevate your everyday experience
                                 </p>
                             </div>
@@ -34,31 +34,16 @@
                         <div class="col-auto">
                             <h4 class="text-animation-word text-n0 mb-lg-6 mb-4">Shop</h4>
                             <ul class="d-grid gap-lg-4 gap-2">
-                                <li><a href="shop.html" class="text-n0 text-base fw-normal hover-text-secondary2">Bikes</a>
+                                <li><a href="home" class="text-n0 text-base fw-normal hover-text-secondary2">Home</a>
                                 </li>
-                                <li><a href="shop.html" class="text-n0 text-base fw-normal hover-text-secondary2">Accessories</a>
+                                <li><a href="products" class="text-n0 text-base fw-normal hover-text-secondary2">Products</a>
                                 </li>
-                                <li><a href="shop.html" class="text-n0 text-base fw-normal hover-text-secondary2">Clothing</a>
+                                <li><a href="blogs" class="text-n0 text-base fw-normal hover-text-secondary2">Blogs</a>
                                 </li>
-                                <li><a href="shop.html" class="text-n0 text-base fw-normal hover-text-secondary2">Tool</a>
+                                <li><a href="contact" class="text-n0 text-base fw-normal hover-text-secondary2">Contact</a>
                                 </li>
-                                <li><a href="shop.html" class="text-n0 text-base fw-normal hover-text-secondary2">Hydration</a>
+                                <li><a href="about" class="text-n0 text-base fw-normal hover-text-secondary2">About</a>
                                 </li>
-                                <li><a href="shop.html" class="text-n0 text-base fw-normal hover-text-secondary2">Equipment</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-auto">
-                            <h4 class="text-animation-word text-n0 mb-lg-6 mb-4">Pages</h4>
-                            <ul class="d-grid gap-lg-4 gap-2">
-                                <li><a href="index.html" class="text-n0 text-base fw-normal hover-text-secondary2">Home</a>
-                                </li>
-                                <li><a href="about-us.html" class="text-n0 text-base fw-normal hover-text-secondary2">About Us</a>
-                                </li>
-                                <li><a href="services.html" class="text-n0 text-base fw-normal hover-text-secondary2">Services</a></li>
-                                <li><a href="shop.html" class="text-n0 text-base fw-normal hover-text-secondary2">Shop</a>
-                                </li>
-                                <li><a href="blogs.html" class="text-n0 text-base fw-normal hover-text-secondary2">News</a></li>
                             </ul>
                         </div>
                         <div class="col-lg-3 col-auto">
@@ -66,17 +51,17 @@
                             <ul class="d-grid gap-lg-4 gap-2">
                                 <li><a href="faqs.html" class="text-n0 text-base fw-normal hover-text-secondary2">FAQs</a>
                                 </li>
-                                <li><a href="warranty-policy.html" class="text-n0 text-base fw-normal hover-text-secondary2">Warranty
+                                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Warranty
                                         Policy</a>
                                 </li>
-                                <li><a href="shipping-delivery.html" class="text-n0 text-base fw-normal hover-text-secondary2">Shipping &
+                                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Shipping &
                                         Delivery</a></li>
-                                <li><a href="how-to-order.html" class="text-n0 text-base fw-normal hover-text-secondary2">How
+                                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">How
                                         to Order</a>
                                 </li>
-                                <li><a href="exchange-return.html" class="text-n0 text-base fw-normal hover-text-secondary2">Exchange $
+                                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Exchange $
                                         Return Policy</a></li>
-                                <li><a href="terms-of-offers.html" class="text-n0 text-base fw-normal hover-text-secondary2">Terms of
+                                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Terms of
                                         Offers</a></li>
                             </ul>
                         </div>
@@ -90,15 +75,26 @@
             </div>
         </div>
         <div class="d-between flex-wrap-reverse py-lg-6 py-4">
-            <p class="text-n0 text-base fw-normal">Copyright © <span class="currentYear"></span> <a href="index.html" class="text-secondary2">CycleCity</a>. All
+            <p class="text-n0 text-base fw-normal">Copyright © <span class="currentYear"></span> <a href="index.html" class="text-secondary2">SPORTSHOP</a>. All
                 Rights Reserved</p>
             <ul class="d-flex align-items-center gap-lg-6 gap-3">
-                <li><a href="privacy-policy.html" class="text-n0 text-base fw-normal hover-text-secondary2">Privacy
+                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Privacy
                         Policy</a></li>
-                <li><a href="terms-conditions.html" class="text-n0 text-base fw-normal hover-text-secondary2">Terms &
+                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Terms &
                         Conditions</a>
                 </li>
             </ul>
         </div>
     </div>
 </section>
+<script>
+    function loadCartCount() {
+        fetch('cart-count')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cart-count').innerText = data.count;
+                })
+                .catch(error => console.error('Error:', error));
+    }
+    window.onload = loadCartCount;
+</script>

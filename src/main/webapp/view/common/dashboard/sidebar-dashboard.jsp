@@ -5,83 +5,114 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<c:set var="account" value="${sessionScope.account}" />
+<c:set var="userRole" value="${account != null ? account.role : null}" />
 <aside class="sidebar">
-  <button type="button" class="sidebar-close-btn">
-    <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
-  </button>
-  <div>
-    <a href="index.html" class="sidebar-logo">
-      <img src="${pageContext.request.contextPath}/assets/admin/images/STORE 24.png" alt="site logo" class="light-logo">
-      <img src="${pageContext.request.contextPath}/assets/admin/images/logo-light.png" alt="site logo" class="dark-logo">
-      <img src="${pageContext.request.contextPath}/assets/admin/images/logo-icon.png" alt="site logo" class="logo-icon">
-    </a>
-  </div>
-  <div class="sidebar-menu-area">
-    <ul class="sidebar-menu" id="sidebar-menu">
-      <li class="dropdown">
-        <a href="javascript:void(0)">
-          <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
-          <span>Dashboard</span>
+    <button type="button" class="sidebar-close-btn">
+        <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
+    </button>
+    <div>
+        <a href="${pageContext.request.contextPath}/home" class="sidebar-logo">
+            <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="site logo" class="light-logo">
+            <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="site logo" class="dark-logo">
+            <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="site logo" class="logo-icon">
         </a>
-        <ul class="sidebar-submenu">
-          <li>
-            <a href="index.html"><i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> AI</a>
-          </li>
-          <li>
-            <a href="index-2.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> CRM</a>
-          </li>
-          <li>
-            <a href="index-3.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> eCommerce</a>
-          </li>
-          <li>
-            <a href="index-4.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Cryptocurrency</a>
-          </li>
-          <li>
-            <a href="index-5.html"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Investment</a>
-          </li>
-          <li>
-            <a href="index-6.html"><i class="ri-circle-fill circle-icon text-purple w-auto"></i> LMS</a>
-          </li>
-          <li>
-            <a href="index-7.html"><i class="ri-circle-fill circle-icon text-info-main w-auto"></i> NFT & Gaming</a>
-          </li>
-          <li>
-            <a href="index-8.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Medical</a>
-          </li>
-          <li>
-            <a href="index-9.html"><i class="ri-circle-fill circle-icon text-purple w-auto"></i> Analytics</a>
-          </li>
-          <li>
-            <a href="index-10.html"><i class="ri-circle-fill circle-icon text-warning-main w-auto"></i> POS & Inventory </a>
-          </li>
-          <li>
-            <a href="index-11.html"><i class="ri-circle-fill circle-icon text-success-main w-auto"></i> Finance & Banking </a>
-          </li>
-          <li>
-            <a href="index-12.html"><i class="ri-circle-fill circle-icon text-danger-main w-auto"></i> Booking System</a>
-          </li>
-        </ul>
-      </li>     
+    </div>
+    <div class="sidebar-menu-area">
+        <ul class="sidebar-menu" id="sidebar-menu">
+            <c:if test="${userRole == 'admin'}">
+                <li class="dropdown">
+                    <a href="${pageContext.request.contextPath}/admin/dashboard">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
+                        <span>Dashboard</span>
+                    </a>
+                </li>     
 
-      <li>
-        <a href="${pageContext.request.contextPath}/manage-users">
-          <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
-          <span>Users Management</span> 
-        </a>
-      </li>
-      
-      <li>
-        <a href="${pageContext.request.contextPath}/manage-settings">
-          <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>
-          <span>Settings Management</span> 
-        </a>
-      </li>
-      <li>
-        <a href="${pageContext.request.contextPath}/change-password">
-          <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>
-          <span>Change Password</span> 
-        </a>
-      </li>
-    </ul>
-  </div>
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/manage-account">
+                        <iconify-icon icon="flowbite:users-group-outline" class="menu-icon"></iconify-icon>
+                        <span>Users Management</span> 
+                    </a>
+                </li>
+
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/manage-product">
+                        <iconify-icon icon="carbon:product" class="menu-icon"></iconify-icon>
+                        <span>Product Management</span> 
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/manage-category">
+                        <iconify-icon icon="carbon:category" class="menu-icon"></iconify-icon>
+                        <span>Category Management</span> 
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/manage-voucher">
+                        <iconify-icon icon="carbon:product" class="menu-icon"></iconify-icon>
+                        <span>Vocuher Management</span> 
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/ManageBlogController">
+                        <iconify-icon icon="carbon:product" class="menu-icon"></iconify-icon>
+                        <span>Blog manage</span> 
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/change-password">
+                        <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>
+                        <span>Change Password</span> 
+                    </a>
+                </li>
+            </c:if>
+            <c:if test="${userRole == 'staff'}">
+                <li class="dropdown">
+                    <a href="${pageContext.request.contextPath}/home">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
+                        <span>Home</span>
+                    </a>
+                </li>   
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/dashboard">
+                        <iconify-icon icon="carbon:category" class="menu-icon"></iconify-icon>
+                        <span>Dashboard Management</span> 
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/manage-order">
+                        <iconify-icon icon="carbon:category" class="menu-icon"></iconify-icon>
+                        <span>Order Management</span> 
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/feedback">
+                        <iconify-icon icon="carbon:category" class="menu-icon"></iconify-icon>
+                        <span>Feedback Management</span> 
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/change-password">
+                        <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>
+                        <span>Change Password</span> 
+                    </a>
+                </li>
+            </c:if>
+            <c:if test="${userRole == 'user'}">
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
+                        <span>Dashboard</span>
+                    </a>
+                </li>   
+                <li>
+                    <a href="${pageContext.request.contextPath}/change-password">
+                        <iconify-icon icon="icon-park-outline:setting-two" class="menu-icon"></iconify-icon>
+                        <span>Change Password</span> 
+                    </a>
+                </li>
+            </c:if> 
+        </ul>
+    </div>
 </aside>

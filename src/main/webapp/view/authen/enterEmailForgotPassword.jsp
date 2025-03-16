@@ -25,8 +25,8 @@
         <meta name="twitter:image" content="${pageContext.request.contextPath}/assets/images/logo.png">
         <meta name="twitter:site" content="@CycleCity">
 
-        <title>CycleCity | Forgot Password</title>
-        <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/images/favicon.png"
+        <title>ShopSport | Forgot Password</title>
+        <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/images/favi.jpg"
             type="image/x-icon">
         <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
