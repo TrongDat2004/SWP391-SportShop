@@ -26,7 +26,7 @@ public class ProductController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             int page = 1;
-            int pageSize = 4;
+            int pageSize = 9;
 
             if (request.getParameter("page") != null) {
                 page = Integer.parseInt(request.getParameter("page"));
