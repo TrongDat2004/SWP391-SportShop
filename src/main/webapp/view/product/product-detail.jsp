@@ -344,15 +344,16 @@
                                     <form method="POST" action="cart" class="product-form">
                                         <input type="hidden" name="productId" value="${product.productId}">
                                         <input type="hidden" name="action" value="add">
-
-                                        <div class="form-group">
-                                            <label for="quantity">Quantity:</label>
-                                            <div class="quantity-control">
-                                                <button type="button" class="quantity-btn" onclick="decreaseQuantity()">-</button>
-                                                <input type="number" name="quantity" id="quantity" min="1" max="${product.stock}" value="1" class="quantity-input">
-                                                <button type="button" class="quantity-btn" onclick="increaseQuantity()">+</button>
+                                        <c:if test="${userRole != 'admin'}">
+                                            <div class="form-group">
+                                                <label for="quantity">Quantity:</label>
+                                                <div class="quantity-control">
+                                                    <button type="button" class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                                                    <input type="number" name="quantity" id="quantity" min="1" max="${product.stock}" value="1" class="quantity-input">
+                                                    <button type="button" class="quantity-btn" onclick="increaseQuantity()">+</button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </c:if>
                                         <div class="average-rating">
                                             <h3>Average Rating: <span>${averageRating}</span>/5 ⭐</h3>
                                         </div>
