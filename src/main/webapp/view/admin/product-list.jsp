@@ -6,7 +6,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Product Management || Clothing</title>
-         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
         <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
             <style>
                 .fixed-width-btn {
@@ -88,6 +88,16 @@
             </div>
 
             <!-- Product Table -->
+            <c:if test="${not empty param.error}">
+                <div class="alert alert-danger" role="alert">
+                    <strong>Error:</strong> ${param.error}
+                </div>
+            </c:if>
+            <c:if test="${param.statusM == '0'}">
+                <div class="alert alert-warning" role="alert">
+                    Failed to ${param.typeM == 'add' ? 'add' : 'update'} product.
+                </div>
+            </c:if>
             <div class="card">
                 <div class="card-body p-24">
                     <div class="table-responsive">
