@@ -31,7 +31,6 @@
                     <li class="fw-medium">Edit Product</li>
                 </ul>
             </div>
-
             <!-- Edit Product Form -->
             <div class="card">
                 <div class="card-body p-24">
@@ -59,11 +58,11 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Price</label>
-                                <input type="number" step="0.01" class="form-control" name="price" value="${product.price}" required>
+                                <input type="number" step="0.01" class="form-control" name="price" value="${product.price}" required min="1000">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Stock</label>
-                                <input type="number" class="form-control" name="stock" value="${product.stock}" required>
+                                <input type="number" class="form-control" name="stock" value="${product.stock}" required min="1">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Product Image</label>
