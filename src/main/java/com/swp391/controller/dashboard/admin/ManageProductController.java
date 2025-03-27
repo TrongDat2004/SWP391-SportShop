@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -82,7 +83,7 @@ public class ManageProductController extends HttpServlet {
         String categoryFilter = request.getParameter("category");
 
         int page = 1;
-        int pageSize = 5;
+        int pageSize = 10;
         String pageStr = request.getParameter("page");
         if (pageStr != null && !pageStr.isEmpty()) {
             try {
@@ -133,69 +134,214 @@ public class ManageProductController extends HttpServlet {
 
     private void insertProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            String pathProduct = "./uploads/product/";
+            String pathProduct = "uploads/product/";
             String uploadPath = getServletContext().getRealPath(pathProduct);
             Upload upload = new Upload();
-            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+
+            String categoryIdStr = request.getParameter("categoryId");
             String name = request.getParameter("name");
             String description = request.getParameter("description");
-            BigDecimal price = new BigDecimal(request.getParameter("price"));
-            int stock = Integer.parseInt(request.getParameter("stock"));
-            boolean status = Boolean.parseBoolean(request.getParameter("status"));
-            Part mainImgParth = request.getPart("image");
-            String fileNameImg = pathProduct + upload.uploadImg(mainImgParth, uploadPath);
+            String priceStr = request.getParameter("price");
+            String stockStr = request.getParameter("stock");
+            String statusStr = request.getParameter("status");
+            Part mainImgPart = request.getPart("image");
 
-            if (name.isEmpty() || price.compareTo(BigDecimal.ZERO) <= 0 || stock < 0) {
-                response.sendRedirect("/admin/manage-product?action=create&error=Invalid input");
+            StringBuilder errorMsg = new StringBuilder();
+
+            int categoryId;
+            try {
+                categoryId = Integer.parseInt(categoryIdStr);
+                if (categoryId <= 0) {
+                    errorMsg.append("Category ID must be positive. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid Category ID. ");
+                categoryId = -1;
+            }
+
+            if (name == null || name.trim().isEmpty()) {
+                errorMsg.append("Product name is required. ");
+            }
+
+            if (description == null || description.trim().isEmpty()) {
+                errorMsg.append("Description is required. ");
+            }
+
+            BigDecimal price;
+            try {
+                price = new BigDecimal(priceStr);
+                if (price.compareTo(BigDecimal.ZERO) <= 0) {
+                    errorMsg.append("Price must be greater than 0. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid price format. ");
+                price = BigDecimal.ZERO;
+            }
+
+            int stock;
+            try {
+                stock = Integer.parseInt(stockStr);
+                if (stock < 0) {
+                    errorMsg.append("Stock cannot be negative. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid stock format. ");
+                stock = -1;
+            }
+
+            boolean status;
+            try {
+                status = Boolean.parseBoolean(statusStr);
+            } catch (Exception e) {
+                errorMsg.append("Invalid status value. ");
+                status = false;
+            }
+
+            String fileNameImg = null;
+            if (mainImgPart == null || mainImgPart.getSize() == 0) {
+                errorMsg.append("Product image is required. ");
+            } else {
+                String fileName = upload.uploadImg(mainImgPart, uploadPath);
+                if (fileName == null) {
+                    errorMsg.append("Failed to upload image. ");
+                } else {
+                    String contentType = mainImgPart.getContentType();
+                    if (!contentType.startsWith("image/")) {
+                        errorMsg.append("File must be an image. ");
+                    } else {
+                        fileNameImg = pathProduct + fileName;
+                    }
+                }
+            }
+
+            if (errorMsg.length() > 0) {
+                response.sendRedirect(request.getContextPath() + "/admin/manage-product?action=create&error=" + URLEncoder.encode(errorMsg.toString(), "UTF-8"));
                 return;
             }
 
-            Product product = new Product(0, categoryId, name, description, price, stock, fileNameImg, status, null, null, null);
+            Product product = new Product(0, categoryId, name.trim(), description.trim(), price, stock, fileNameImg, status, null, null, null);
             int result = productDAO.insert(product);
-            if (result > 1) {
-                response.sendRedirect(request.getContextPath()+"/admin/manage-product?statusM=1&typeM=add");
+            if (result > 0) {
+                response.sendRedirect(request.getContextPath() + "/admin/manage-product?statusM=1&typeM=add");
             } else {
-                response.sendRedirect(request.getContextPath()+"/admin/manage-product?statusM=0&typeM=add");
+                response.sendRedirect(request.getContextPath() + "/admin/manage-product?statusM=0&typeM=add");
             }
-        } catch (Exception e) {
-            response.sendRedirect(request.getContextPath()+"/admin/manage-product?action=create&error=Invalid input");
+        } catch (ServletException | IOException e) {
+            response.sendRedirect(request.getContextPath() + "/admin/manage-product?action=create&error=" + URLEncoder.encode("Server error: " + e.getMessage(), "UTF-8"));
         }
     }
 
     private void updateProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            String pathProduct = "./uploads/product/";
+            String pathProduct = "uploads/product/";
             String uploadPath = getServletContext().getRealPath(pathProduct);
             Upload upload = new Upload();
-            int id = Integer.parseInt(request.getParameter("productId"));
-            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+
+            String idStr = request.getParameter("productId");
+            String categoryIdStr = request.getParameter("categoryId");
             String name = request.getParameter("name");
             String description = request.getParameter("description");
-            BigDecimal price = new BigDecimal(request.getParameter("price"));
-            int stock = Integer.parseInt(request.getParameter("stock"));
-            String image = request.getParameter("image");
-            boolean status = Boolean.parseBoolean(request.getParameter("status"));
-            Part mainImgParth = request.getPart("image");
-            String saveFile = upload.uploadImg(mainImgParth, uploadPath);
-            String fileNameImg = pathProduct + saveFile;
-            if (saveFile == null) {
-                fileNameImg = request.getParameter("oldImage");
+            String priceStr = request.getParameter("price");
+            String stockStr = request.getParameter("stock");
+            String statusStr = request.getParameter("status");
+            String oldImage = request.getParameter("oldImage");
+            Part mainImgPart = request.getPart("image");
+
+            StringBuilder errorMsg = new StringBuilder();
+
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+                if (id <= 0) {
+                    errorMsg.append("Invalid Product ID. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid Product ID format. ");
+                id = -1;
             }
 
-            if (name.isEmpty() || price.compareTo(BigDecimal.ZERO) <= 0 || stock < 0) {
-                response.sendRedirect(request.getContextPath()+"/admin/manage-product?action=edit&id=" + id + "&error=Invalid input");
+            int categoryId;
+            try {
+                categoryId = Integer.parseInt(categoryIdStr);
+                if (categoryId <= 0) {
+                    errorMsg.append("Category ID must be positive. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid Category ID. ");
+                categoryId = -1;
+            }
+
+            if (name == null || name.trim().isEmpty()) {
+                errorMsg.append("Product name is required. ");
+            } else if (name.length() > 100) {
+                errorMsg.append("Product name must not exceed 100 characters. ");
+            }
+
+            if (description == null || description.trim().isEmpty()) {
+                errorMsg.append("Description is required. ");
+            }
+
+            BigDecimal price;
+            try {
+                price = new BigDecimal(priceStr);
+                if (price.compareTo(BigDecimal.ZERO) <= 0) {
+                    errorMsg.append("Price must be greater than 0. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid price format. ");
+                price = BigDecimal.ZERO;
+            }
+
+            int stock;
+            try {
+                stock = Integer.parseInt(stockStr);
+                if (stock < 0) {
+                    errorMsg.append("Stock cannot be negative. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid stock format. ");
+                stock = -1;
+            }
+
+            boolean status;
+            try {
+                status = Boolean.parseBoolean(statusStr);
+            } catch (Exception e) {
+                errorMsg.append("Invalid status value. ");
+                status = false;
+            }
+
+            String fileNameImg = oldImage;
+            if (mainImgPart != null && mainImgPart.getSize() > 0) {
+                String fileName = upload.uploadImg(mainImgPart, uploadPath);
+                if (fileName == null) {
+                    errorMsg.append("Failed to upload new image. ");
+                } else {
+                    String contentType = mainImgPart.getContentType();
+                    if (!contentType.startsWith("image/")) {
+                        errorMsg.append("File must be an image. ");
+                    } else {
+                        fileNameImg = pathProduct + fileName;
+                    }
+                }
+            } else if (oldImage == null || oldImage.trim().isEmpty()) {
+                errorMsg.append("Product image is required. ");
+            }
+
+            if (errorMsg.length() > 0) {
+                response.sendRedirect(request.getContextPath() + "/admin/manage-product?action=edit&id=" + id + "&error=" + URLEncoder.encode(errorMsg.toString(), "UTF-8"));
                 return;
             }
 
-            Product product = new Product(id, categoryId, name, description, price, stock, fileNameImg, status, null, null, null);
+            Product product = new Product(id, categoryId, name.trim(), description.trim(), price, stock, fileNameImg, status, null, null, null);
             boolean result = productDAO.update(product);
             if (result) {
-                response.sendRedirect(request.getContextPath()+"/admin/manage-product?statusM=1&typeM=update");
+                response.sendRedirect(request.getContextPath() + "/admin/manage-product?statusM=1&typeM=update");
             } else {
-                response.sendRedirect(request.getContextPath()+"/admin/manage-product?statusM=0&typeM=update");
+                response.sendRedirect(request.getContextPath() + "/admin/manage-product?statusM=0&typeM=update");
             }
-        } catch (Exception e) {
-            response.sendRedirect(request.getContextPath()+"/admin/manage-product?action=edit&id=" + request.getParameter("id") + "&error=Invalid input");
+        } catch (ServletException | IOException e) {
+            response.sendRedirect(request.getContextPath() + "/admin/manage-product?action=edit&id=" + request.getParameter("productId") + "&error=" + URLEncoder.encode("Server error: " + e.getMessage(), "UTF-8"));
         }
     }
 
@@ -205,7 +351,7 @@ public class ManageProductController extends HttpServlet {
         if (product != null) {
             productDAO.delete(product);
         }
-        response.sendRedirect(request.getContextPath()+"/admin/manage-product");
+        response.sendRedirect(request.getContextPath() + "/admin/manage-product");
     }
 
 }
