@@ -212,33 +212,27 @@
                             <c:when test="${not empty products}">
                                 <c:forEach var="product" items="${products}">
                                     <div class="col-lg-4 col-xs-6 mb-4">
-                                        <!-- Product Item -->
                                         <div class="product-card2 position-relative p-xl-10 p-lg-8 p-6 bg-n0 border border-n100-5 box-style box-n20 card-tilt">
                                             <div class="product-thumb-wrapper position-relative">
                                                 <div class="product-thumb hover-cursor" data-hover-text="View Product">
-                                                    <!-- Product Image -->
                                                     <a href="product-detail?id=${product.productId}" class="product-thumb-link d-block">
-                                                        <img class="w-100" src="${product.image}" alt="${product.name}">
+                                                        <img class="w-100 object-fit-contain" src="${product.image}" alt="${product.name}" style="height: 350px;">
                                                     </a>
                                                 </div>
                                             </div>
                                             <span class="d-block h-1px w-100 bg-n100-1 mb-lg-6 mb-4 mt-lg-10 mt-6"></span>
-                                            <div class="product-info-wrapper">
+                                            <div class="product-info-wrapper" style="min-height: 120px;">
                                                 <div class="mb-xxl-7 mb-md-5 mb-3">
-                                                    <!-- Product Name -->
                                                     <a href="product-detail?id=${product.productId}">
-                                                        <h4 class="text-n100 mb-2 hover-text-secondary2">
+                                                        <h4 class="text-n100 mb-2 hover-text-secondary2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; height: 2.3em;">
                                                             ${product.name}
                                                         </h4>
                                                     </a>
                                                 </div>
                                                 <div class="d-between flex-wrap gap-4">
                                                     <div class="d-grid">
-                                                        <!-- Product Price -->
-                                                        <span class="text-sm fw-normal text-n50 text-decoration-underline">${product.price} VNĐ</span>
                                                         <span class="text-xl fw-semibold text-secondary2">${product.price} VNĐ</span>
                                                     </div>
-                                                    <!-- Add to Cart Button -->
                                                     <c:if test="${userRole != 'admin'}">
                                                         <form method="POST" action="cart" class="product-form">
                                                             <input type="hidden" name="productId" value="${product.productId}">

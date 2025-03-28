@@ -14,8 +14,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @WebServlet(name = "ManageVoucherController", urlPatterns = {"/admin/manage-voucher"})
@@ -119,43 +121,104 @@ public class ManageVoucherController extends HttpServlet {
 
     // Insert Voucher
     private void insertVoucher(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        StringBuilder errorMsg = new StringBuilder();
         try {
             String code = request.getParameter("code");
             String discount = request.getParameter("discountAmount");
             String startDate = request.getParameter("startDate");
             String endDate = request.getParameter("expiryDate");
-            int status = Integer.parseInt(request.getParameter("status"));
-            int maxUsage = Integer.parseInt(request.getParameter("maxUsage"));
+            String statusStr = request.getParameter("status");
+            String maxUsageStr = request.getParameter("maxUsage");
 
-            // Validate input
-            if (code == null || code.isEmpty() || discount == null || discount.isEmpty()) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=add&error=Invalid input");
+            if (code == null || code.trim().isEmpty()) {
+                errorMsg.append("Voucher code is required. ");
+            } else if (code.trim().startsWith("_")) {
+                errorMsg.append("Voucher code cannot start with '_'. ");
+            } else if (code.trim().length() < 3 || code.trim().length() > 20) {
+                errorMsg.append("Voucher code must be between 3 and 20 characters. ");
+            } else if (!code.matches("^[a-zA-Z0-9][a-zA-Z0-9_]*$")) {
+                errorMsg.append("Voucher code can only contain letters, numbers, and underscores (but not start with '_'). ");
+            } else if (voucherDAO.isVoucherCodeExist(code.trim())) {
+                errorMsg.append("Voucher code already exists. ");
+            }
+
+            BigDecimal discountAmount = null;
+            if (discount == null || discount.trim().isEmpty()) {
+                errorMsg.append("Discount amount is required. ");
+            } else {
+                try {
+                    discountAmount = new BigDecimal(discount.trim());
+                    if (discountAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                        errorMsg.append("Discount amount must be greater than 0. ");
+                    } else if (discountAmount.compareTo(new BigDecimal("10000000")) > 0) {
+                        errorMsg.append("Discount amount cannot exceed 10,000,000. ");
+                    }
+                } catch (NumberFormatException e) {
+                    errorMsg.append("Invalid discount amount format. ");
+                }
+            }
+
+            LocalDate start = null;
+            LocalDate end = null;
+            if (startDate == null || startDate.trim().isEmpty()) {
+                errorMsg.append("Start date is required. ");
+            } else {
+                try {
+                    start = LocalDate.parse(startDate.trim());
+                    if (start.isBefore(LocalDate.now())) {
+                        errorMsg.append("Start date cannot be in the past. ");
+                    }
+                } catch (DateTimeParseException e) {
+                    errorMsg.append("Invalid start date format. ");
+                }
+            }
+
+            if (endDate == null || endDate.trim().isEmpty()) {
+                errorMsg.append("Expiry date is required. ");
+            } else {
+                try {
+                    end = LocalDate.parse(endDate.trim());
+                    if (start != null && start.isAfter(end)) {
+                        errorMsg.append("Start date cannot be after expiry date. ");
+                    }
+                } catch (DateTimeParseException e) {
+                    errorMsg.append("Invalid expiry date format. ");
+                }
+            }
+
+            int status;
+            try {
+                status = Integer.parseInt(statusStr);
+                if (status < 0 || status > 1) {
+                    errorMsg.append("Status must be 0 (inactive) or 1 (active). ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid status value. ");
+                status = -1;
+            }
+
+            // Validate maxUsage
+            int maxUsage;
+            try {
+                maxUsage = Integer.parseInt(maxUsageStr);
+                if (maxUsage < 1) {
+                    errorMsg.append("Max usage must be at least 1. ");
+                } else if (maxUsage > 10000) { // Giới hạn ví dụ
+                    errorMsg.append("Max usage cannot exceed 10,000. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid max usage value. ");
+                maxUsage = -1;
+            }
+
+            // Nếu có lỗi, redirect với thông báo chi tiết
+            if (errorMsg.length() > 0) {
+                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=add&error=" + URLEncoder.encode(errorMsg.toString(), "UTF-8"));
                 return;
             }
 
-            // Check if voucher code already exists
-            if ( voucherDAO.isVoucherCodeExist(code)) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=add&error=Voucher code already exists");
-                return;
-            }
-
-            // Validate date ranges
-            LocalDate start = LocalDate.parse(startDate);
-            LocalDate end = LocalDate.parse(endDate);
-            if (start.isAfter(end)) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=add&error=Start date cannot be after expiry date");
-                return;
-            }
-
-            // Validate discount amount
-            BigDecimal discountAmount = new BigDecimal(discount);
-            if (discountAmount.compareTo(BigDecimal.ZERO) <= 0) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=add&error=Discount amount must be greater than 0");
-                return;
-            }
-
-            Voucher voucher = new Voucher(0, code, discountAmount, start, end, status, maxUsage, LocalDateTime.now());
-
+            // Tạo và insert voucher
+            Voucher voucher = new Voucher(0, code.trim(), discountAmount, start, end, status, maxUsage, LocalDateTime.now());
             int result = voucherDAO.insert(voucher);
             if (result > 0) {
                 response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?statusM=1&typeM=add");
@@ -164,49 +227,125 @@ public class ManageVoucherController extends HttpServlet {
             }
         } catch (Exception e) {
             System.out.println(e);
-            response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=add&error=Error occurred");
+            response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=add&error=" + URLEncoder.encode("Server error: " + e.getMessage(), "UTF-8"));
         }
     }
 
     // Update Voucher
     private void updateVoucher(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        StringBuilder errorMsg = new StringBuilder();
+        String voucherIdStr = request.getParameter("voucherId");
         try {
-            int voucherId = Integer.parseInt(request.getParameter("voucherId"));
+
             String code = request.getParameter("code");
             String discount = request.getParameter("discountAmount");
             String startDate = request.getParameter("startDate");
             String endDate = request.getParameter("expiryDate");
-            int status = Integer.parseInt(request.getParameter("status"));
-            int maxUsage = Integer.parseInt(request.getParameter("maxUsage"));
+            String statusStr = request.getParameter("status");
+            String maxUsageStr = request.getParameter("maxUsage");
 
-            // Validate input
-            if (code == null || code.isEmpty() || discount == null || discount.isEmpty()) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=edit&voucherId=" + voucherId + "&error=Invalid input");
-                return;
+            // Validate voucherId
+            int voucherId;
+            try {
+                voucherId = Integer.parseInt(voucherIdStr);
+                if (voucherId <= 0) {
+                    errorMsg.append("Invalid voucher ID. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Voucher ID must be a valid number. ");
+                voucherId = -1;
             }
 
-            // Check if voucher code already exists (exclude current voucher)
-            if (voucherDAO.isVoucherCodeExist(code, voucherId)) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=edit&voucherId=" + voucherId + "&error=Voucher code already exists");
-                return;
-            }
-
-            // Validate date ranges
-            LocalDate start = LocalDate.parse(startDate);
-            LocalDate end = LocalDate.parse(endDate);
-            if (start.isAfter(end)) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=edit&voucherId=" + voucherId + "&error=Start date cannot be after expiry date");
-                return;
+            // Validate code
+            if (code == null || code.trim().isEmpty()) {
+                errorMsg.append("Voucher code is required. ");
+            } else if (code.trim().startsWith("_")) {
+                errorMsg.append("Voucher code cannot start with '_'. ");
+            } else if (code.trim().length() < 3 || code.trim().length() > 20) {
+                errorMsg.append("Voucher code must be between 3 and 20 characters. ");
+            } else if (!code.matches("^[a-zA-Z0-9][a-zA-Z0-9_]*$")) {
+                errorMsg.append("Voucher code can only contain letters, numbers, and underscores (but not start with '_'). ");
+            } else if (voucherDAO.isVoucherCodeExist(code.trim(), voucherId)) {
+                errorMsg.append("Voucher code already exists. ");
             }
 
             // Validate discount amount
-            BigDecimal discountAmount = new BigDecimal(discount);
-            if (discountAmount.compareTo(BigDecimal.ZERO) <= 0) {
-                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=edit&voucherId=" + voucherId + "&error=Discount amount must be greater than 0");
+            BigDecimal discountAmount = null;
+            if (discount == null || discount.trim().isEmpty()) {
+                errorMsg.append("Discount amount is required. ");
+            } else {
+                try {
+                    discountAmount = new BigDecimal(discount.trim());
+                    if (discountAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                        errorMsg.append("Discount amount must be greater than 0. ");
+                    } else if (discountAmount.compareTo(new BigDecimal("10000000")) > 0) {
+                        errorMsg.append("Discount amount cannot exceed 10,000,000. ");
+                    }
+                } catch (NumberFormatException e) {
+                    errorMsg.append("Invalid discount amount format. ");
+                }
+            }
+
+            // Validate startDate and endDate
+            LocalDate start = null;
+            LocalDate end = null;
+            if (startDate == null || startDate.trim().isEmpty()) {
+                errorMsg.append("Start date is required. ");
+            } else {
+                try {
+                    start = LocalDate.parse(startDate.trim());
+                } catch (DateTimeParseException e) {
+                    errorMsg.append("Invalid start date format. ");
+                }
+            }
+
+            if (endDate == null || endDate.trim().isEmpty()) {
+                errorMsg.append("Expiry date is required. ");
+            } else {
+                try {
+                    end = LocalDate.parse(endDate.trim());
+                    if (start != null && start.isAfter(end)) {
+                        errorMsg.append("Start date cannot be after expiry date. ");
+                    }
+                } catch (DateTimeParseException e) {
+                    errorMsg.append("Invalid expiry date format. ");
+                }
+            }
+
+            // Validate status
+            int status;
+            try {
+                status = Integer.parseInt(statusStr);
+                if (status < 0 || status > 1) {
+                    errorMsg.append("Status must be 0 (inactive) or 1 (active). ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid status value. ");
+                status = -1;
+            }
+
+            // Validate maxUsage
+            int maxUsage;
+            try {
+                maxUsage = Integer.parseInt(maxUsageStr);
+                if (maxUsage < 1) {
+                    errorMsg.append("Max usage must be at least 1. ");
+                } else if (maxUsage > 10000) {
+                    errorMsg.append("Max usage cannot exceed 10,000. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Invalid max usage value. ");
+                maxUsage = -1;
+            }
+
+            // Nếu có lỗi, redirect với thông báo chi tiết
+            if (errorMsg.length() > 0) {
+                response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=edit&id=" + voucherIdStr + "&error=" + URLEncoder.encode(errorMsg.toString(), "UTF-8"));
                 return;
             }
 
-            Voucher voucher = new Voucher(voucherId, code, discountAmount, start, end, status, maxUsage, null);
+            // Tạo và update voucher
+            Voucher voucher = new Voucher(voucherId, code.trim(), discountAmount, start, end, status, maxUsage, null);
             boolean result = voucherDAO.update(voucher);
             if (result) {
                 response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?statusM=1&typeM=edit");
@@ -214,7 +353,8 @@ public class ManageVoucherController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?statusM=0&typeM=edit");
             }
         } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=list&error=Error occurred");
+            System.out.println(e);
+            response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?action=edit&id=" + voucherIdStr + "&error=" + URLEncoder.encode("Server error: " + e.getMessage(), "UTF-8"));
         }
     }
 

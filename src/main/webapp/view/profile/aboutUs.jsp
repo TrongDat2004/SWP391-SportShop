@@ -85,19 +85,24 @@
                     <div class="team-section text-center">
                         <h2>Our Team</h2>
                         <div class="row mt-4">
-                            <div class="col-md-4 team-member">
-                                <img src="https://via.placeholder.com/100" alt="Team Member">
-                                <h5>Nguyen Van A</h5>
-                                <p>Director</p>
-                            </div>
-                            <div class="col-md-4 team-member">
-                                <img src="https://via.placeholder.com/100" alt="Team Member">
-                                <h5>Tran Thi B</h5>
+                            <div class="col-md-6 team-member">
+                                <img src="assets/images/dat.png" alt="Team Member">
+                                <h5>Nguyễn Hồ Trọng Đạt</h5>
                                 <p>Manager</p>
                             </div>
-                            <div class="col-md-4 team-member">
+                            <div class="col-md-6 team-member">
+                                <img src="assets/images/thien.jpg" alt="Team Member">
+                                <h5>Trần Phúc Thiện</h5>
+                                <p>Developer</p>
+                            </div>
+                            <div class="col-md-6 team-member mt-4">
                                 <img src="https://via.placeholder.com/100" alt="Team Member">
-                                <h5>Le Van C</h5>
+                                <h5>Nguyễn Loan Anh</h5>
+                                <p>Developer</p>
+                            </div>
+                            <div class="col-md-6 team-member mt-4">
+                                <img src="https://via.placeholder.com/100" alt="Team Member">
+                                <h5>Trương Hoàng Phúc</h5>
                                 <p>Developer</p>
                             </div>
                         </div>

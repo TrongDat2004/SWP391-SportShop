@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
-    <title>Add New Account || Clothing</title>
+    <title>Add New Account</title>
     <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
 </head>
 

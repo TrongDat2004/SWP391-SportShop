@@ -407,4 +407,69 @@ public class OrderDAO extends DBContext {
         return count;
     }
 
+    private boolean updateProductStock(List<OrderItem> orderItems) throws SQLException {
+        ProductDAO productDao = new ProductDAO();
+        for (OrderItem item : orderItems) {
+            Product product = productDao.findActiveById(item.getProductId());
+            if (product != null) {
+                int newStock = product.getStock() + item.getQuantity();
+                product.setStock(newStock);
+                boolean updated = productDao.update(product);
+                if (!updated) {
+                    System.out.println("Failed to update stock for product ID: " + item.getProductId());
+                    return false;
+                }
+            } else {
+                System.out.println("Product not found or inactive for ID: " + item.getProductId());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean cancelOrder(int orderId) {
+        String updateOrderQuery = "UPDATE Orders SET status = 'cancelled', updated_at = ? WHERE order_id = ? AND status NOT IN ('completed', 'cancelled')";
+        String selectOrderItemsQuery = "SELECT * FROM Order_Items WHERE order_id = ?";
+
+        try {
+            conn.setAutoCommit(false);
+
+            PreparedStatement updatePs = conn.prepareStatement(updateOrderQuery);
+            updatePs.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            updatePs.setInt(2, orderId);
+            int rowsAffected = updatePs.executeUpdate();
+
+            if (rowsAffected == 0) {
+                System.out.println("Order not found or already completed/cancelled with ID: " + orderId);
+                conn.rollback();
+                return false;
+            }
+
+            List<OrderItem> orderItems = getOrderItemsByOrderId(orderId);
+            if (!updateProductStock(orderItems)) {
+                System.out.println("Failed to update product stock for order ID: " + orderId);
+                conn.rollback();
+                return false;
+            }
+
+            conn.commit();
+            System.out.println("Order cancelled successfully with ID: " + orderId);
+            return true;
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+                System.out.println("Rollback due to error: " + e.getMessage());
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

@@ -37,32 +37,26 @@
                     border-radius: 50px;
                     text-transform: capitalize;
                 }
-
                 .badge-pending {
                     background-color: var(--pending-color);
                     color: white;
                 }
-
                 .badge-accepted {
                     background-color: var(--accepted-color);
                     color: white;
                 }
-
                 .badge-completed {
                     background-color: var(--completed-color);
                     color: white;
                 }
-
                 .badge-cancelled {
                     background-color: var(--cancelled-color);
                     color: white;
                 }
-
                 .badge-paid {
                     background-color: #28a745; /* Màu xanh lá */
                     color: white;
                 }
-
                 .badge-nopaid {
                     background-color: #dc3545; /* Màu đỏ */
                     color: white;
@@ -92,7 +86,7 @@
 
         <div class="dashboard-main-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-                <h6 class="fw-semibold mb-0">Product Management</h6>
+                <h6 class="fw-semibold mb-0">Order Management</h6>
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="index.html" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -129,7 +123,6 @@
                 </div>
             </div>
 
-
             <!-- Product Table -->
             <div class="card">
                 <div class="card-body p-24">
@@ -150,43 +143,50 @@
                                     <li class="list-group-item"><strong>Order Date:</strong> ${order.createdAt}</li>
                                     <li class="list-group-item">
                                         <strong>Total Amount:</strong> 
-                                        <fmt:formatNumber value="${order.total}" type="currency"/> VND
+                                        <fmt:formatNumber value="${order.total}" pattern="#,##0"/> VND
                                     </li>
                                     <li class="list-group-item">
                                         <strong>Status:</strong> 
                                         <span class="badge bg-${
-                                              order.status == 'Completed' ? 'success' : 
-                                                  (order.status == 'Pending' ? 'warning' : 
-                                                  (order.status == 'Paid' ? 'primary' : 
-                                                  (order.status == 'NoPaid' ? 'secondary' : 'danger')))}">
+                                              order.status == 'completed' ? 'success' : 
+                                                  (order.status == 'pending' ? 'warning' : 
+                                                  (order.status == 'paid' ? 'primary' : 
+                                                  (order.status == 'nopaid' ? 'secondary' : 'danger')))}">
                                                   ${order.status}
                                               </span>
                                         </li>
-
                                     </ul>
                                 </div>
                             </div>
-                            <!-- Change Order Status Form -->
-                            <div class="card mb-4 shadow-lg rounded-3 mt-3">
-                                <div class="card-body">
-                                    <form action="${pageContext.request.contextPath}/admin/manage-order" method="post">
-                                        <input type="hidden" name="orderId" value="${order.orderId}" />
-                                        <div class="mb-3">
-                                            <label for="status" class="form-label">Change Status</label>
-                                            <select name="status" id="status" class="form-control">
-                                                <option value="pending" ${order.status == 'pending' ? 'selected' : ''}>Pending</option>
-                                                <option value="accepted" ${order.status == 'accepted' ? 'selected' : ''}>Accepted</option>
-                                                <option value="cancelled" ${order.status == 'cancelled' ? 'selected' : ''}>Canceled</option>
-                                                <option value="completed" ${order.status == 'completed' ? 'selected' : ''}>Completed</option>
-                                                <option value="paid" ${order.status == 'paid' ? 'selected' : ''}>Paid</option>
-                                                <option value="nopaid" ${order.status == 'nopaid' ? 'selected' : ''}>No Paid</option>
-                                            </select>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Update Status</button>
-                                    </form>
-                                </div>
-                            </div>
+                            <c:set var="account" value="${sessionScope.account}" />
+                            <c:set var="userRole" value="${account != null ? account.role : null}" />
 
+                            <c:if test="${account.userId != order.userId}">
+
+
+                                <!-- Change Order Status Form -->
+                                <c:if test="${order.status != 'completed' && order.status != 'cancelled'}">
+                                    <div class="card mb-4 shadow-lg rounded-3 mt-3">
+                                        <div class="card-body">
+                                            <form action="${pageContext.request.contextPath}/admin/manage-order" method="post">
+                                                <input type="hidden" name="orderId" value="${order.orderId}" />
+                                                <div class="mb-3">
+                                                    <label for="status" class="form-label">Change Status</label>
+                                                    <select name="status" id="status" class="form-control">
+                                                        <option value="pending" ${order.status == 'pending' ? 'selected' : ''}>Pending</option>
+                                                        <option value="accepted" ${order.status == 'accepted' ? 'selected' : ''}>Accepted</option>
+                                                        <option value="cancelled" ${order.status == 'cancelled' ? 'selected' : ''}>Canceled</option>
+                                                        <option value="completed" ${order.status == 'completed' ? 'selected' : ''}>Completed</option>
+                                                        <option value="paid" ${order.status == 'paid' ? 'selected' : ''}>Paid</option>
+                                                        <option value="nopaid" ${order.status == 'nopaid' ? 'selected' : ''}>No Paid</option>
+                                                    </select>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Update Status</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </c:if>
+                            </c:if>
                             <h4 class="text-dark mb-3 mt-3">Product List</h4>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover shadow-sm rounded">
@@ -205,8 +205,8 @@
                                                 <td>${loop.index + 1}</td>
                                                 <td>${item.product.name}</td>
                                                 <td>${item.quantity}</td>
-                                                <td><fmt:formatNumber value="${item.price}" type="currency"/> VND</td>
-                                                <td><fmt:formatNumber value="${item.price * item.quantity}" type="currency"/> VND</td>
+                                                <td><fmt:formatNumber value="${item.price}" pattern="#,##0"/> VND</td>
+                                                <td><fmt:formatNumber value="${item.price * item.quantity}" pattern="#,##0"/> VND</td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
@@ -220,45 +220,44 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+                <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            var toastStatus = "${param.statusM}";
+                            var toastType = "${param.typeM}";
+                            if (toastStatus) {
+                                iziToast.show({
+                                    title: toastStatus === "1" ? 'Success' : 'Error',
+                                    message: toastType === 'add' ? "Add successfully" : "Update successfully",
+                                    position: 'topRight',
+                                    color: toastStatus === '1' ? 'green' : 'red',
+                                    timeout: 5000,
+                                    onClosing: function () {
+                                        fetch('${pageContext.request.contextPath}/remove-toast', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                            },
+                                        }).then(response => {
+                                            if (!response.ok) {
+                                                console.error('Failed to remove toast attributes');
+                                            }
+                                        }).catch(error => {
+                                            console.error('Error:', error);
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                </script>
                 <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        var toastStatus = "${param.statusM}";
-                        var toastType = "${param.typeM}";
-                        if (toastStatus) {
-                            iziToast.show({
-                                title: toastStatus === "1" ? 'Success' : 'Error',
-                                message: toastType === 'add' ? "Add successfully" : "Update successfully",
-                                position: 'topRight',
-                                color: toastStatus === '1' ? 'green' : 'red',
-                                timeout: 5000,
-                                onClosing: function () {
-                                    fetch('${pageContext.request.contextPath}/remove-toast', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/x-www-form-urlencoded',
-                                        },
-                                    }).then(response => {
-                                        if (!response.ok) {
-                                            console.error('Failed to remove toast attributes');
-                                        }
-                                    }).catch(error => {
-                                        console.error('Error:', error);
-                                    });
-                                }
-                            });
+                    function confirmDelete(productId) {
+                        if (confirm('Are you sure you want to delete this product?')) {
+                            window.location.href = '${pageContext.request.contextPath}/admin/manage-product?action=delete&id=' + productId;
                         }
-                    });
-            </script>
-            <script>
-                function confirmDelete(productId) {
-                    if (confirm('Are you sure you want to delete this product?')) {
-                        window.location.href = '${pageContext.request.contextPath}/admin/manage-product?action=delete&id=' + productId;
                     }
-                }
-            </script>
+                </script>
         </body>
     </html>

@@ -77,16 +77,21 @@ public class CheckVoucherController extends HttpServlet {
             if (isValid) {
                 Voucher voucher = voucherDAO.findByCode(voucherCode);
                 boolean hasUsed = voucherDAO.hasUsedVoucher(userId, voucher.getVoucherId());
-
+                int countUse = voucherDAO.countUsersByVoucher(voucher.getVoucherId());
+                if (countUse >= voucher.getMaxUsage()) {
+                    out.print("{\"success\": false, \"message\": \"Voucher limited\"}");
+                    out.flush();
+                    return;
+                }
                 if (!hasUsed) {
                     discountAmount = voucher.getDiscountAmount().doubleValue();
-                    session.setAttribute("SESSION_VOUCHER", voucher); 
+                    session.setAttribute("SESSION_VOUCHER", voucher);
                     isValidVoucher = true;
                 } else {
-                    session.removeAttribute("SESSION_VOUCHER"); 
+                    session.removeAttribute("SESSION_VOUCHER");
                 }
             } else {
-                session.removeAttribute("SESSION_VOUCHER"); 
+                session.removeAttribute("SESSION_VOUCHER");
             }
         }
 

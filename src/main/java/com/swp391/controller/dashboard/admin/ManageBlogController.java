@@ -86,7 +86,7 @@ public class ManageBlogController extends HttpServlet {
         Part filePart = request.getPart("image");
 
         // Validate input
-        Map<String, String> errors = validateBlog(title, content, status, filePart);
+        Map<String, String> errors = validateBlog(title, content, status, filePart, false);
 
         if (!errors.isEmpty()) {
             request.setAttribute("errors", errors);
@@ -121,7 +121,7 @@ public class ManageBlogController extends HttpServlet {
         Part filePart = request.getPart("image");
 
         // Validate input
-        Map<String, String> errors = validateBlog(title, content, status, null);
+        Map<String, String> errors = validateBlog(title, content, status, null, true);
 
         if (!errors.isEmpty()) {
             request.setAttribute("errors", errors);
@@ -136,11 +136,11 @@ public class ManageBlogController extends HttpServlet {
         String uploadPath = getServletContext().getRealPath(filePath);
         Upload upload = new Upload();
         String nameUpload = upload.uploadImg(filePart, uploadPath);
-
-        if (nameUpload == null) {
-            nameUpload = request.getParameter("oldImage");
-        }
         String namePathSaveDB = filePath + nameUpload;
+        if (nameUpload == null) {
+            namePathSaveDB = request.getParameter("oldImage");
+        }
+        
 
         Blog blog = new Blog();
         blog.setBlogId(id);
@@ -160,7 +160,7 @@ public class ManageBlogController extends HttpServlet {
         response.sendRedirect("ManageBlogController");
     }
 
-    private Map<String, String> validateBlog(String title, String content, String status, Part filePart) {
+    private Map<String, String> validateBlog(String title, String content, String status, Part filePart, boolean isEdit) {
         Map<String, String> errors = new HashMap<>();
 
         if (title == null || title.trim().isEmpty()) {
@@ -171,19 +171,19 @@ public class ManageBlogController extends HttpServlet {
             errors.put("content", "Content cannot be empty.");
         }
 
-        if (status == null || (!status.equals("draft") && !status.equals("published"))) {
+        if (status == null || (!status.equals("hidden") && !status.equals("published"))) {
             errors.put("status", "Invalid status. Choose 'draft' or 'published'.");
         }
-
-        if (filePart == null || filePart.getSize() == 0) {
-            errors.put("image", "Please upload an image.");
-        } else {
-            String fileName = filePart.getSubmittedFileName();
-            if (!fileName.matches(".*\\.(jpg|jpeg|png|gif)$")) {
-                errors.put("image", "Only image files (JPG, JPEG, PNG, GIF) are allowed.");
+        if (!isEdit) {
+            if (filePart == null || filePart.getSize() == 0) {
+                errors.put("image", "Please upload an image.");
+            } else {
+                String fileName = filePart.getSubmittedFileName();
+                if (!fileName.matches(".*\\.(jpg|jpeg|png|gif)$")) {
+                    errors.put("image", "Only image files (JPG, JPEG, PNG, GIF) are allowed.");
+                }
             }
         }
-
         return errors;
     }
 }

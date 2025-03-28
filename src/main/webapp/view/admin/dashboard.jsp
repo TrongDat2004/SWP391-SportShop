@@ -3,185 +3,244 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Category Management || Clothing</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
-        <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
-            <style>
-                .fixed-width-btn {
-                    min-width: 120px;
-                    text-align: center;
-                }
-            </style>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard || Revenue & Orders</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
+    <style>
+        .dashboard-main-body {
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-title {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .filter-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-primary {
+            background: #007bff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        .table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: #343a40;
+            color: white;
+            border: none;
+        }
+        .chart-container {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <jsp:include page="../common/dashboard/sidebar-dashboard.jsp"></jsp:include>
+    <jsp:include page="../common/dashboard/header-dashboard.jsp"></jsp:include>
 
-        <body>
-            <!-- Sidebar -->
-        <jsp:include page="../common/dashboard/sidebar-dashboard.jsp"></jsp:include>
+    <div class="dashboard-main-body">
+        <h2 class="text-center mb-4" style="color: #2c3e50;">
+            <span class="material-icons" style="vertical-align: middle;">insights</span> 
+            Revenue & Order Statistics
+        </h2>
 
-            <!-- Header -->
-        <jsp:include page="../common/dashboard/header-dashboard.jsp"></jsp:include>
+        <!-- Filter Form -->
+        <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" class="filter-form row g-3 align-items-end mb-5">
+            <div class="col-md-4">
+                <label for="startDate" class="form-label">From Date</label>
+                <input type="date" id="startDate" name="startDate" value="${startDate}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="endDate" class="form-label">To Date</label>
+                <input type="date" id="endDate" name="endDate" value="${endDate}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">
+                    <span class="material-icons" style="vertical-align: middle;">filter_list</span> Filter
+                </button>
+            </div>
+        </form>
 
-        <c:url value="/admin/manage-order" var="paginationUrl">
-            <c:param name="action" value="list" />
-            <c:if test="${not empty param.status}">
-                <c:param name="status" value="${param.status}" />
-            </c:if>
-            <c:if test="${not empty param.search}">
-                <c:param name="search" value="${param.search}" />
-            </c:if>
-        </c:url>
-
-
-        <div class="dashboard-main-body">
-            <h2 class="text-center">📊 Revenue Statistics</h2>
-
-            <!-- Form lọc dữ liệu -->
-            <form method="get" action="${pageContext.request.contextPath}/admin/dashboard" class="row g-3 align-items-center mb-4">
-                <div class="col-md-3">
-                    <label for="startDate" class="form-label">From Date:</label>
-                    <input type="date" id="startDate" name="startDate" value="${startDate}" class="form-control">
-                </div>
-                <div class="col-md-3">
-                    <label for="endDate" class="form-label">To Date:</label>
-                    <input type="date" id="endDate" name="endDate" value="${endDate}" class="form-control">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label d-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-primary">🔍 Filter</button>
-                </div>
-            </form>
-
-            <!-- Biểu đồ doanh thu -->
-            <div class="card">
-                <div class="card-body">
-                    <canvas id="revenueChart"></canvas>
+        <!-- Charts -->
+        <div class="row mb-5">
+            <div class="col-md-6 mb-4">
+                <div class="card chart-container">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="material-icons" style="vertical-align: middle;">attach_money</span>
+                            Revenue (VNĐ)
+                        </h5>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
             </div>
-
-            <!-- Bảng dữ liệu -->
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h5>📅 Revenue Details</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped table-bordered">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Month</th>
-                                <th>Revenue (VND)</th>
-                                <th>Order Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="data" items="${revenueData}">
-                                <tr>
-                                    <td>${data.month}</td>
-                                    <td>${data.revenue}</td>
-                                    <td>${data.totalOrders}</td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="card mt-4">
-                <div class="dashboard-main-body">
-                    <h5 class="mt-2">Order Quantity Statistics by Status</h5>
-                    <canvas id="orderStatusChart"></canvas>
-                    <table class="table table-bordered table-striped mt-5">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Status</th>
-                                <th>Number of Orders</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="orderStat" items="${orderStats}">
-                                <tr>
-                                    <td>${orderStat.status}</td>
-                                    <td>${orderStat.totalOrders}</td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
+            <div class="col-md-6 mb-4">
+                <div class="card chart-container">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="material-icons" style="vertical-align: middle;">shopping_cart</span>
+                            Total Orders
+                        </h5>
+                        <canvas id="orderChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
-            <script>
-                // Lấy dữ liệu từ JSTL
-                const labels = [];
-                const revenues = [];
-                const orders = [];
-            <c:forEach var="data" items="${revenueData}">
-                labels.push("${data.month}");
-                revenues.push(${data.revenue});
-                orders.push(${data.totalOrders});
-            </c:forEach>
+        <!-- Revenue Details Table -->
+        <div class="card mb-5">
+            <div class="card-header bg-primary text-white">
+                <h5>
+                    <span class="material-icons" style="vertical-align: middle;">table_chart</span>
+                    Revenue Details
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped table-bordered m-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Month</th>
+                            <th>Revenue (VND)</th>
+                            <th>Order Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="data" items="${revenueData}">
+                            <tr>
+                                <td>${data.month}</td>
+                                <td><fmt:formatNumber value="${data.revenue}" type="currency" currencySymbol="₫"/></td>
+                                <td>${data.totalOrders}</td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                // Vẽ biểu đồ với Chart.js
-                const ctx = document.getElementById('revenueChart').getContext('2d');
-                new Chart(ctx, {
-                type: 'bar',
-                        data: {
-                        labels: labels,
-                                datasets: [
-                                {
-                                label: 'Revenue (VNĐ)',
-                                        data: revenues,
-                                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                        borderWidth: 1
-                                },
-                                {
-                                label: 'Total Orders',
-                                        data: orders,
-                                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                                        borderColor: 'rgba(255, 99, 132, 1)',
-                                        borderWidth: 1
-                                }
-                                ]
-                        },
-                        options: {
-                        responsive: true,
-                                plugins: {
-                                legend: {position: 'top'}
-                                },
-                                scales: {
-                                y: {beginAtZero: true}
-                                }
-                        }
-                });
-        </script>
-        <script>
-            var ctxS = document.getElementById('orderStatusChart').getContext('2d');
-            var orderStatusData = {
-            labels: [
-            <c:forEach var="orderStat" items="${orderStats}" varStatus="loop">
-            "${orderStat.status}" <c:if test="${!loop.last}">,</c:if>
-            </c:forEach>
-            ],
-                    datasets: [{
-                    label: 'Number of order',
-                            data: [
-            <c:forEach var="orderStat" items="${orderStats}" varStatus="loop">
-                ${orderStat.totalOrders} <c:if test="${!loop.last}">,</c:if>
-            </c:forEach>
-                            ],
-                            backgroundColor: ['red', 'blue', 'green', 'yellow', 'purple'],
-                            borderWidth: 1
-                    }]
+        <!-- Order Status Chart & Table -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <span class="material-icons" style="vertical-align: middle;">pie_chart</span>
+                    Order Status Statistics
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-bordered table-striped mt-3">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Orders</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="orderStat" items="${orderStats}">
+                                    <tr>
+                                        <td>${orderStat.status}</td>
+                                        <td>${orderStat.totalOrders}</td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
+    <script>
+        (function() {
+            const revenueData = {
+                labels: [<c:forEach var="data" items="${revenueData}" varStatus="loop">"${data.month}"<c:if test="${!loop.last}">,</c:if></c:forEach>],
+                datasets: [{
+                    label: 'Revenue (VNĐ)',
+                    data: [<c:forEach var="data" items="${revenueData}" varStatus="loop">${data.revenue}<c:if test="${!loop.last}">,</c:if></c:forEach>],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
             };
-            var myChart = new Chart(ctxS, {
-            type: 'pie',
-                    data: orderStatusData
-            });</script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+            new Chart(document.getElementById('revenueChart').getContext('2d'), {
+                type: 'bar',
+                data: revenueData,
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: value => '₫' + value.toLocaleString() } } }
+                }
+            });
+
+            const orderData = {
+                labels: [<c:forEach var="data" items="${revenueData}" varStatus="loop">"${data.month}"<c:if test="${!loop.last}">,</c:if></c:forEach>],
+                datasets: [{
+                    label: 'Total Orders',
+                    data: [<c:forEach var="data" items="${revenueData}" varStatus="loop">${data.totalOrders}<c:if test="${!loop.last}">,</c:if></c:forEach>],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            };
+            new Chart(document.getElementById('orderChart').getContext('2d'), {
+                type: 'bar',
+                data: orderData,
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            const statusData = {
+                labels: [<c:forEach var="orderStat" items="${orderStats}" varStatus="loop">"${orderStat.status}"<c:if test="${!loop.last}">,</c:if></c:forEach>],
+                datasets: [{
+                    label: 'Orders by Status',
+                    data: [<c:forEach var="orderStat" items="${orderStats}" varStatus="loop">${orderStat.totalOrders}<c:if test="${!loop.last}">,</c:if></c:forEach>],
+                    backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff'],
+                    borderWidth: 1
+                }]
+            };
+            new Chart(document.getElementById('orderStatusChart').getContext('2d'), {
+                type: 'pie',
+                data: statusData,
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        })();
+    </script>
+</body>
 </html>

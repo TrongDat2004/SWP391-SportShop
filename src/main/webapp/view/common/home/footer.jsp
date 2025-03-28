@@ -49,7 +49,7 @@
                         <div class="col-lg-3 col-auto">
                             <h4 class="text-animation-word text-n0 mb-lg-6 mb-4">Support</h4>
                             <ul class="d-grid gap-lg-4 gap-2">
-                                <li><a href="faqs.html" class="text-n0 text-base fw-normal hover-text-secondary2">FAQs</a>
+                                <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">FAQs</a>
                                 </li>
                                 <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Warranty
                                         Policy</a>
@@ -70,12 +70,12 @@
             </div>
             <div class="col-xxl-4">
                 <div class="footer-map">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d42292.8315719577!2d-106.56972643793605!3d52.084128685484096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x5304f24dba300731%3A0x459e39b334a99d2c!2sCostco%20Wholesale!5e1!3m2!1sen!2sbd!4v1726546261198!5m2!1sen!2sbd" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3775.3627273684883!2d105.74940357484613!3d10.030656090076322!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a08843c5530f53%3A0x6d243030f743fe11!2zNjAwIMSQLiBOZ3V54buFbiBWxINuIEPhu6ssIEFuIELDrG5oLCBOaW5oIEtp4buBdSwgQ-G6p24gVGjGoSwgVmlldG5hbQ!5e1!3m2!1sen!2sbd!4v1742117013608!5m2!1sen!2sbd" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </div>
         <div class="d-between flex-wrap-reverse py-lg-6 py-4">
-            <p class="text-n0 text-base fw-normal">Copyright © <span class="currentYear"></span> <a href="index.html" class="text-secondary2">SPORTSHOP</a>. All
+            <p class="text-n0 text-base fw-normal">Copyright © <span class="currentYear"></span> <a href="${pageContext.request.contextPath}/home" class="text-secondary2">SPORTSHOP</a>. All
                 Rights Reserved</p>
             <ul class="d-flex align-items-center gap-lg-6 gap-3">
                 <li><a href="#" class="text-n0 text-base fw-normal hover-text-secondary2">Privacy

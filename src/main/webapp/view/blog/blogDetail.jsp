@@ -395,7 +395,7 @@
                                             ${blog.content}
                                         </p>
                                         <div class="text-center mt-4">
-                                            <a href="blogs" class="btn btn-outline-primary px-4 py-2 fw-semibold">Quay lại</a>
+                                            <a href="blogs" class="btn btn-outline-primary px-4 py-2 fw-semibold">Back</a>
                                         </div>
                                     </div>
                                 </div>

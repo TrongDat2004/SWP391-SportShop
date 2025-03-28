@@ -78,8 +78,7 @@
                         <div class="col-xl-5 col-lg-7 col-md-9">
                             <div class="register-form p-xl-15 p-lg-10 p-md-8 p-6 radius-16 border border-n100-1 bg-n20">
                                 <div class="register-logo mb-lg-15 mb-md-10 mb-8 mx-auto">
-                                    <img class="w-100" src="${pageContext.request.contextPath}/assets/images/logo.png"
-                                        alt="logo">
+                                     <img class="w-100" src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="logo">
                                 </div>
                                 <form action="${pageContext.request.contextPath}/authen?action=forgot-password" method="POST"
                                     class="d-grid gap-lg-6 gap-4 mb-lg-10 mb-md-8 mb-6">

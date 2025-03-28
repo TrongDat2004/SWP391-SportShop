@@ -50,7 +50,7 @@
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="published" <c:if test="${blog.status == 'published'}">selected</c:if>>Published</option>
-                        <option value="draft" <c:if test="${blog.status == 'draft'}">selected</c:if>>Draft</option>
+                        <option value="hidden" <c:if test="${blog.status == 'hidden'}">selected</c:if>>Draft</option>
                         </select>
                     </div>
 

@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
+    <link rel="icon" type="image/png" sizes="16x16">
     <title>Add New Account || Clothing</title>
     <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
 </head>
@@ -25,7 +25,7 @@
 
     <div class="dashboard-main-body">
 
-    <h2 class="mb-4">Blog List</h2>
+    <h6 class="mb-4">Blog List</h6>
 
     <a href="ManageBlogController?action=add" class="btn btn-primary mb-3">Add Blog Post</a>
 

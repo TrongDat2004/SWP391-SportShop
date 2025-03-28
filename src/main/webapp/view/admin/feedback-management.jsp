@@ -192,7 +192,6 @@
             </c:if>
         </div>
         <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {

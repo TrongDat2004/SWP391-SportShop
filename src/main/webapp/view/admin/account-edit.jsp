@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
-    <title>Edit Account || Clothing</title>
+    <title>Edit Account</title>
     <jsp:include page="../common/dashboard/css-dashboard.jsp"></jsp:include>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
 </head>

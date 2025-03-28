@@ -68,12 +68,6 @@
                 </li>
             </c:if>
             <c:if test="${userRole == 'staff'}">
-                <li class="dropdown">
-                    <a href="${pageContext.request.contextPath}/home">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
-                        <span>Home</span>
-                    </a>
-                </li>   
                 <li>
                     <a href="${pageContext.request.contextPath}/admin/dashboard">
                         <iconify-icon icon="carbon:category" class="menu-icon"></iconify-icon>
@@ -100,10 +94,10 @@
                 </li>
             </c:if>
             <c:if test="${userRole == 'user'}">
-                <li class="dropdown">
-                    <a href="javascript:void(0)">
+                <li>
+                    <a href="${pageContext.request.contextPath}/profile">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
-                        <span>Dashboard</span>
+                        <span>My Profile</span>
                     </a>
                 </li>   
                 <li>

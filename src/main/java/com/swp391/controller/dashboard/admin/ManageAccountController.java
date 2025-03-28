@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package com.swp391.controller.dashboard.admin;
 
 import jakarta.servlet.ServletException;
@@ -18,12 +17,12 @@ import java.util.List;
 import jakarta.servlet.RequestDispatcher;
 import java.time.LocalDateTime;
 
-@WebServlet(name="ManageAccountController", urlPatterns={"/admin/manage-account"})
+@WebServlet(name = "ManageAccountController", urlPatterns = {"/admin/manage-account"})
 public class ManageAccountController extends HttpServlet {
-   
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action == null) {
             action = "list"; // Default action
@@ -47,12 +46,11 @@ public class ManageAccountController extends HttpServlet {
                 listAccounts(request, response);
                 break;
         }
-    } 
-
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String action = request.getParameter("action");
         if (action == null) {
             action = "list"; // Default action
@@ -71,26 +69,25 @@ public class ManageAccountController extends HttpServlet {
         }
     }
 
-   
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet DashboardController</title>");  
+            out.println("<title>Servlet DashboardController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet DashboardController at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet DashboardController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
-    } 
+    }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String accountIdStr = request.getParameter("id");
         if (accountIdStr != null && !accountIdStr.isEmpty()) {
             int accountId = Integer.parseInt(accountIdStr);
@@ -106,7 +103,7 @@ public class ManageAccountController extends HttpServlet {
     }
 
     private void listAccounts(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         // Get filter parameters
         String searchFilter = request.getParameter("search");
         String statusFilter = request.getParameter("status");
@@ -130,11 +127,11 @@ public class ManageAccountController extends HttpServlet {
 
         AccountDAO accountDAO = new AccountDAO();
         List<Account> accounts = accountDAO.findAccountsWithFilters(
-            roleFilter, statusFilter, searchFilter, page, pageSize);
-        
+                roleFilter, statusFilter, searchFilter, page, pageSize);
+
         int totalAccounts = accountDAO.getTotalFilteredAccounts(
-            roleFilter, statusFilter, searchFilter);
-        
+                roleFilter, statusFilter, searchFilter);
+
         int totalPages = (int) Math.ceil((double) totalAccounts / pageSize);
 
         // Set attributes for JSP
@@ -153,47 +150,94 @@ public class ManageAccountController extends HttpServlet {
     }
 
     private void updateAccount(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
+        StringBuilder errorMsg = new StringBuilder();
         try {
-            // Lấy thông tin từ request
-            int accountId = Integer.parseInt(request.getParameter("id"));
-            // String username = request.getParameter("username");
-            // String email = request.getParameter("email");
+            String idStr = request.getParameter("id");
             String password = request.getParameter("password");
             String firstName = request.getParameter("firstName");
             String lastName = request.getParameter("lastName");
             String phone = request.getParameter("phone");
             String address = request.getParameter("address");
-            // String role = request.getParameter("role");
-            boolean status = Boolean.parseBoolean(request.getParameter("status"));
+            String statusStr = request.getParameter("status");
+            String role = request.getParameter("role");
 
-            // Lấy account từ database
+            int accountId;
+            try {
+                accountId = Integer.parseInt(idStr);
+                if (accountId <= 0) {
+                    errorMsg.append("Invalid Account ID. ");
+                }
+            } catch (NumberFormatException e) {
+                errorMsg.append("Account ID must be a valid number. ");
+                accountId = -1;
+            }
+
+            if (password != null && !password.isEmpty()) {
+                if (password.length() < 6) {
+                    errorMsg.append("Password must be at least 6 characters. ");
+                } else if (password.length() > 50) {
+                    errorMsg.append("Password must not exceed 50 characters. ");
+                }
+            }
+
+            if (firstName == null || firstName.trim().isEmpty()) {
+                errorMsg.append("First name is required. ");
+            } else if (firstName.length() > 50) {
+                errorMsg.append("First name must not exceed 50 characters. ");
+            }
+
+            if (lastName == null || lastName.trim().isEmpty()) {
+                errorMsg.append("Last name is required. ");
+            } else if (lastName.length() > 50) {
+                errorMsg.append("Last name must not exceed 50 characters. ");
+            }
+            
+            if (phone == null || phone.trim().isEmpty()) {
+                errorMsg.append("Phone number is required. ");
+            } else if (!phone.matches("^0\\d{9}$")) {
+                errorMsg.append("Phone number must be a 10-digit number starting with 0. ");
+            }
+
+            if (address == null || address.trim().isEmpty()) {
+                errorMsg.append("Address is required. ");
+            } else if (address.length() > 200) {
+                errorMsg.append("Address must not exceed 200 characters. ");
+            }
+
+            boolean status;
+            try {
+                status = Boolean.parseBoolean(statusStr);
+            } catch (Exception e) {
+                errorMsg.append("Invalid status value. ");
+                status = false;
+            }
+
+            if (errorMsg.length() > 0) {
+                request.getSession().setAttribute("toastMessage", errorMsg.toString());
+                request.getSession().setAttribute("toastType", "error");
+                response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=edit&id=" + idStr);
+                return;
+            }
+
             AccountDAO accountDAO = new AccountDAO();
             Account account = accountDAO.findById(accountId);
 
             if (account != null) {
-                // Cập nhật các trường có thể thay đổi
-                // account.setUsername(username);
-                // account.setEmail(email);
-                account.setFirstName(firstName);
-                account.setLastName(lastName);
-                account.setPhone(phone);
-                account.setAddress(address);
-                // account.setRole(role);
+                account.setFirstName(firstName.trim());
+                account.setLastName(lastName.trim());
+                account.setPhone(phone.trim());
+                account.setAddress(address.trim());
                 account.setStatus(status);
-                
-                // Cập nhật password nếu có
+                account.setRole(role);
                 if (password != null && !password.isEmpty()) {
                     account.setPassword(password);
                 }
-                
-                // Cập nhật thời gian chỉnh sửa
+
                 account.setUpdatedAt(LocalDateTime.now());
-                
-                // Thực hiện update
+
                 boolean isSuccess = accountDAO.update(account);
-                
-                // Xử lý kết quả
+
                 if (isSuccess) {
                     request.getSession().setAttribute("toastMessage", "Account updated successfully!");
                     request.getSession().setAttribute("toastType", "success");
@@ -209,19 +253,18 @@ public class ManageAccountController extends HttpServlet {
             request.getSession().setAttribute("toastMessage", "Error: " + e.getMessage());
             request.getSession().setAttribute("toastType", "error");
         }
-        
-        // Chuyển hướng về trang list
+
         response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=list");
     }
 
     private void deactivateAccount(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String accountIdStr = request.getParameter("id");
         if (accountIdStr != null && !accountIdStr.isEmpty()) {
             int accountId = Integer.parseInt(accountIdStr);
             AccountDAO accountDAO = new AccountDAO();
             boolean deactivated = accountDAO.deactivateAccount(accountId);
-            
+
             if (deactivated) {
                 setToastMessage(request, "Account deactivated successfully", "success");
             } else {
@@ -230,18 +273,18 @@ public class ManageAccountController extends HttpServlet {
         } else {
             setToastMessage(request, "Invalid account ID", "error");
         }
-        
+
         response.sendRedirect(request.getContextPath() + "/admin/manage-account");
     }
 
     private void activateAccount(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String accountIdStr = request.getParameter("id");
         if (accountIdStr != null && !accountIdStr.isEmpty()) {
             int accountId = Integer.parseInt(accountIdStr);
             AccountDAO accountDAO = new AccountDAO();
             boolean activated = accountDAO.activateAccount(accountId);
-            
+
             if (activated) {
                 setToastMessage(request, "Account activated successfully", "success");
             } else {
@@ -250,7 +293,7 @@ public class ManageAccountController extends HttpServlet {
         } else {
             setToastMessage(request, "Invalid account ID", "error");
         }
-        
+
         response.sendRedirect(request.getContextPath() + "/admin/manage-account");
     }
 
@@ -259,16 +302,16 @@ public class ManageAccountController extends HttpServlet {
         request.getSession().setAttribute("toastType", type);
     }
 
-    private void showAddForm(HttpServletRequest request, HttpServletResponse response) 
+    private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/view/admin/account-add.jsp");
         dispatcher.forward(request, response);
     }
 
-    private void addAccount(HttpServletRequest request, HttpServletResponse response) 
-        throws ServletException, IOException {
+    private void addAccount(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        StringBuilder errorMsg = new StringBuilder();
         try {
-            // Lấy thông tin từ request
             String username = request.getParameter("username");
             String email = request.getParameter("email");
             String password = request.getParameter("password");
@@ -277,28 +320,88 @@ public class ManageAccountController extends HttpServlet {
             String phone = request.getParameter("phone");
             String address = request.getParameter("address");
             String role = request.getParameter("role");
-            boolean status = Boolean.parseBoolean(request.getParameter("status"));
+            String statusStr = request.getParameter("status");
 
-            // Tạo đối tượng Account mới
+            if (username == null || username.trim().isEmpty()) {
+                errorMsg.append("Username is required. ");
+            } else if (username.length() < 3 || username.length() > 50) {
+                errorMsg.append("Username must be between 3 and 50 characters. ");
+            } else if (!username.matches("^[a-zA-Z0-9_]+$")) {
+                errorMsg.append("Username can only contain letters, numbers, and underscores. ");
+            }
+
+            if (email == null || email.trim().isEmpty()) {
+                errorMsg.append("Email is required. ");
+            } else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                errorMsg.append("Invalid email format. ");
+            } else if (email.length() > 100) {
+                errorMsg.append("Email must not exceed 100 characters. ");
+            }
+
+            if (password == null || password.trim().isEmpty()) {
+                errorMsg.append("Password is required. ");
+            } else if (password.length() < 6) {
+                errorMsg.append("Password must be at least 6 characters. ");
+            } else if (password.length() > 50) {
+                errorMsg.append("Password must not exceed 50 characters. ");
+            }
+
+            if (firstName == null || firstName.trim().isEmpty()) {
+                errorMsg.append("First name is required. ");
+            } else if (firstName.length() > 50) {
+                errorMsg.append("First name must not exceed 50 characters. ");
+            }
+
+            if (lastName == null || lastName.trim().isEmpty()) {
+                errorMsg.append("Last name is required. ");
+            } else if (lastName.length() > 50) {
+                errorMsg.append("Last name must not exceed 50 characters. ");
+            }
+
+            if (phone == null || phone.trim().isEmpty()) {
+                errorMsg.append("Phone number is required. ");
+            } else if (!phone.matches("^0\\d{9}$")) {
+                errorMsg.append("Phone number must be a 10-digit number starting with 0. ");
+            }
+
+            if (address == null || address.trim().isEmpty()) {
+                errorMsg.append("Address is required. ");
+            } else if (address.length() > 200) {
+                errorMsg.append("Address must not exceed 200 characters. ");
+            }
+
+            boolean status;
+            try {
+                status = Boolean.parseBoolean(statusStr);
+            } catch (Exception e) {
+                errorMsg.append("Invalid status value. ");
+                status = false;
+            }
+
+            if (errorMsg.length() > 0) {
+                request.getSession().setAttribute("toastMessage", errorMsg.toString());
+                request.getSession().setAttribute("toastType", "error");
+                response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=add");
+                return;
+            }
+
             Account newAccount = Account.builder()
-                .username(username)
-                .email(email)
-                .password(password)
-                .firstName(firstName)
-                .lastName(lastName)
-                .phone(phone)
-                .address(address)
-                .role(role)
-                .status(status)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+                    .username(username.trim())
+                    .email(email.trim())
+                    .password(password)
+                    .firstName(firstName.trim())
+                    .lastName(lastName.trim())
+                    .phone(phone.trim())
+                    .address(address.trim())
+                    .role(role.trim())
+                    .status(status)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
 
-            // Thêm account vào database
             AccountDAO accountDAO = new AccountDAO();
             boolean isSuccess = accountDAO.insert(newAccount) > 0;
 
-            // Xử lý kết quả
             if (isSuccess) {
                 request.getSession().setAttribute("toastMessage", "Account added successfully!");
                 request.getSession().setAttribute("toastType", "success");
@@ -310,8 +413,7 @@ public class ManageAccountController extends HttpServlet {
             request.getSession().setAttribute("toastMessage", "Error: " + e.getMessage());
             request.getSession().setAttribute("toastType", "error");
         }
-        
-        // Chuyển hướng về trang list
+
         response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=list");
     }
 }

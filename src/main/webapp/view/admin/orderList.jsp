@@ -89,7 +89,7 @@
 
         <div class="dashboard-main-body">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-                <h6 class="fw-semibold mb-0">Product Management</h6>
+                <h6 class="fw-semibold mb-0">Order Management</h6>
                 <ul class="d-flex align-items-center gap-2">
                     <li class="fw-medium">
                         <a href="index.html" class="d-flex align-items-center gap-1 hover-text-primary">
@@ -98,7 +98,7 @@
                         </a>
                     </li>
                     <li>-</li>
-                    <li class="fw-medium">Product List</li>
+                    <li class="fw-medium">Order List</li>
                 </ul>
             </div>
 
@@ -145,57 +145,61 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <c:set var="account" value="${sessionScope.account}" />
+                                <c:set var="userRole" value="${account != null ? account.role : null}" />
                                 <c:forEach var="order" items="${orders}">
-                                    <tr>
-                                        <td>
-                                            <span class="order-id">#${order.orderId}</span>
-                                        </td>
-                                        <td>
-                                            <span class="user-details">${order.fullname}</span>
-                                        </td>
-                                        <td>
-                                            <span class="shipping-address" title="${order.shippingAddress}">${order.shippingAddress}</span>
-                                        </td>
-                                        <td>
-                                            <span class="total-amount"><fmt:formatNumber value="${order.total}" type="currency" currencySymbol=""/> VNĐ</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge
-                                                  ${order.status == 'pending' ? 'badge-pending' :
-                                                    order.status == 'accepted' ? 'badge-accepted' :
-                                                    order.status == 'cancelled' ? 'badge-cancelled' :
-                                                    order.status == 'paid' ? 'badge-paid' :
-                                                    order.status == 'nopaid' ? 'badge-nopaid' :
-                                                    'badge-completed'}">
-                                                      ${order.status == 'pending' ? 'Pending' :
-                                                        order.status == 'accepted' ? 'Confirmed' :
-                                                        order.status == 'cancelled' ? 'Cancelled' :
-                                                        order.status == 'paid' ? 'Paid' :
-                                                        order.status == 'nopaid' ? 'Not Paid' :
-                                                        'Completed'}
-                                                  </span>
+                                    <c:if test="${account.userId != order.userId}">
+                                        <tr>
+                                            <td>
+                                                <span class="order-id">#${order.orderId}</span>
                                             </td>
+                                            <td>
+                                                <span class="user-details">${order.fullname}</span>
+                                            </td>
+                                            <td>
+                                                <span class="shipping-address" title="${order.shippingAddress}">${order.shippingAddress}</span>
+                                            </td>
+                                            <td>
+                                                <span class="total-amount"><fmt:formatNumber value="${order.total}" type="currency" currencySymbol=""/> VNĐ</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge
+                                                      ${order.status == 'pending' ? 'badge-pending' :
+                                                        order.status == 'accepted' ? 'badge-accepted' :
+                                                        order.status == 'cancelled' ? 'badge-cancelled' :
+                                                        order.status == 'paid' ? 'badge-paid' :
+                                                        order.status == 'nopaid' ? 'badge-nopaid' :
+                                                        'badge-completed'}">
+                                                          ${order.status == 'pending' ? 'Pending' :
+                                                            order.status == 'accepted' ? 'Confirmed' :
+                                                            order.status == 'cancelled' ? 'Cancelled' :
+                                                            order.status == 'paid' ? 'Paid' :
+                                                            order.status == 'nopaid' ? 'Not Paid' :
+                                                            'Completed'}
+                                                      </span>
+                                                </td>
 
-                                            <td>
-                                                <span class="payment-method">
-                                                    <i class="payment-icon
-                                                       ${order.paymentMethod == 'cash' ? 'fas fa-money-bill-wave text-success' :
-                                                         order.paymentMethod == 'credit_card' ? 'far fa-credit-card text-primary' :
-                                                         'fab fa-paypal text-info'}">
-                                                    </i>
-                                                    ${order.paymentMethod == 'cash' ? 'Cash' :
-                                                      order.paymentMethod == 'banking' ? 'banking' : 'banking'}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="created-at">${order.createdAt}</span>
-                                            </td>
-                                            <td>
-                                                <a href="manage-order?action=order-details&orderid=${order.orderId}" class="btn btn-dark btn-sm">
-                                                    <i class="fas fa-eye"></i> View Details
-                                                </a>
-                                            </td>
-                                        </tr>
+                                                <td>
+                                                    <span class="payment-method">
+                                                        <i class="payment-icon
+                                                           ${order.paymentMethod == 'cash' ? 'fas fa-money-bill-wave text-success' :
+                                                             order.paymentMethod == 'credit_card' ? 'far fa-credit-card text-primary' :
+                                                             'fab fa-paypal text-info'}">
+                                                        </i>
+                                                        ${order.paymentMethod == 'cash' ? 'Cash' :
+                                                          order.paymentMethod == 'banking' ? 'banking' : 'banking'}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="created-at">${order.createdAt}</span>
+                                                </td>
+                                                <td>
+                                                    <a href="manage-order?action=order-details&orderid=${order.orderId}" class="btn btn-dark btn-sm">
+                                                        <i class="fas fa-eye"></i> View Details
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </c:if>
                                     </c:forEach>
                                 </tbody>
                             </table>

@@ -39,3 +39,11 @@
       $(this).closest('tr').addClass('d-none')
     }); 
   </script>
+<script>
+    (function() {
+        document.title = "SportShop | Your Hub for Quality Sports equipment, Gear, and Accessories";
+    })();
+</script>
+<script>
+    document.querySelector(".dashboard-main-body .justify-content-between.gap-3.mb-24 li.fw-medium a").setAttribute("href", "http://localhost:8080/SWP391-Sport-Shop/admin/dashboard");
+</script>
