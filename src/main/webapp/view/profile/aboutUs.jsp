@@ -96,12 +96,12 @@
                                 <p>Developer</p>
                             </div>
                             <div class="col-md-6 team-member mt-4">
-                                <img src="https://via.placeholder.com/100" alt="Team Member">
+                                <img src="assets/images/anh.jpg" alt="Team Member">
                                 <h5>Nguyễn Loan Anh</h5>
                                 <p>Developer</p>
                             </div>
                             <div class="col-md-6 team-member mt-4">
-                                <img src="https://via.placeholder.com/100" alt="Team Member">
+                                <img src="assets/images/phuc.jpg" alt="Team Member">
                                 <h5>Trương Hoàng Phúc</h5>
                                 <p>Developer</p>
                             </div>

@@ -151,9 +151,9 @@
                         <div class="swiper mySwiper">
                             <div class="swiper-wrapper">
                                 <div class="swiper-slide"><img src="./assets/images/inner-page-banner.png" class="slider-img" alt="Slide 1"></div>
-                                <div class="swiper-slide"><img src="https://t4.ftcdn.net/jpg/02/09/06/31/360_F_209063134_azPA34pvucaTOk8UFchP8y6dtf73pEEF.jpg" class="slider-img" alt="Slide 2"></div>
-                                <div class="swiper-slide"><img src="https://inhat.vn/wp-content/uploads/2021/06/4-min-23.jpg" class="slider-img" alt="Slide 3"></div>
-                                <div class="swiper-slide"><img src="https://xaydung.edu.vn/wp-content/uploads/shop-toi-yeu-the-thao-103682.jpg" class="slider-img" alt="Slide 4"></div>
+                                <div class="swiper-slide"><img src="./assets/images/slider/1.jpg" class="slider-img" alt="Slide 2"></div>
+                                <div class="swiper-slide"><img src="./assets/images/slider/2.jpg" class="slider-img" alt="Slide 3"></div>
+                                <div class="swiper-slide"><img src="./assets/images/slider/3.jpg" class="slider-img" alt="Slide 4"></div>
                             </div>
                             <!-- Pagination & Navigation -->
                             <div class="swiper-pagination"></div>
