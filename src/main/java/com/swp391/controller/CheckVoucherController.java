@@ -1,15 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.swp391.controller;
 
 import com.swp391.config.GlobalConfig;
 import com.swp391.dal.impl.CartDAO;
 import com.swp391.dal.impl.VoucherDAO;
 import com.swp391.entity.Account;
-import com.swp391.entity.Cart;
-import com.swp391.entity.CartItem;
+import com.swp391.entity.Cart; // Sửa import
 import com.swp391.entity.Voucher;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,13 +17,13 @@ import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- *
- * @author HP
- */
 @WebServlet(name = "CheckVoucherController", urlPatterns = {"/check-voucher"})
 public class CheckVoucherController extends HttpServlet {
 
+    private final CartDAO cartDAO = new CartDAO();
+    private final VoucherDAO voucherDAO = new VoucherDAO();
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -37,7 +32,6 @@ public class CheckVoucherController extends HttpServlet {
 
         Account account = (Account) session.getAttribute(GlobalConfig.SESSION_ACCOUNT);
 
-        // If the user is not logged in, return JSON error response
         if (account == null) {
             out.print("{\"success\": false, \"message\": \"You are not logged in!\", \"redirect\": \"authen?action=login\"}");
             out.flush();
@@ -45,17 +39,8 @@ public class CheckVoucherController extends HttpServlet {
         }
 
         int userId = account.getUserId();
-        CartDAO cartDao = new CartDAO();
-        Cart cart = cartDao.getCartByUserId(userId);
-
-        // If the cart does not exist, return JSON error response
-        if (cart == null) {
-            out.print("{\"success\": false, \"message\": \"Your cart is empty!\"}");
-            out.flush();
-            return;
-        }
-
-        List<CartItem> cartItems = cartDao.getCartItems(cart.getCartId());
+        // Lấy cart items trực tiếp từ userId
+        List<Cart> cartItems = cartDAO.getCartItemsByUserId(userId);
 
         if (cartItems == null || cartItems.isEmpty()) {
             out.print("{\"success\": false, \"message\": \"Your cart is empty!\"}");
@@ -63,48 +48,62 @@ public class CheckVoucherController extends HttpServlet {
             return;
         }
 
+        // Tính tổng tiền từ cartItems
         BigDecimal totalAmount = cartItems.stream()
+                .filter(item -> item.getProduct() != null && item.getProduct().getPrice() != null)
                 .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         String voucherCode = request.getParameter("voucherCode");
-        VoucherDAO voucherDAO = new VoucherDAO();
-        double discountAmount = 0;
-        boolean isValidVoucher = false;
+        BigDecimal discountAmount = BigDecimal.ZERO; // Sử dụng BigDecimal
+        boolean isValidVoucherApplied = false; // Đổi tên biến cho rõ ràng
+        String message = "No valid voucher applied."; // Tin nhắn mặc định
 
         if (voucherCode != null && !voucherCode.trim().isEmpty()) {
-            boolean isValid = voucherDAO.isValidVoucher(voucherCode);
-            if (isValid) {
-                Voucher voucher = voucherDAO.findByCode(voucherCode);
+            Voucher voucher = voucherDAO.findByCode(voucherCode); // Lấy voucher bằng code
+
+            if (voucher != null && voucherDAO.isValidVoucher(voucherCode)) { // Kiểm tra voucher tồn tại và hợp lệ (còn hạn, status=1)
                 boolean hasUsed = voucherDAO.hasUsedVoucher(userId, voucher.getVoucherId());
                 int countUse = voucherDAO.countUsersByVoucher(voucher.getVoucherId());
+
                 if (countUse >= voucher.getMaxUsage()) {
-                    out.print("{\"success\": false, \"message\": \"Voucher limited\"}");
-                    out.flush();
-                    return;
-                }
-                if (!hasUsed) {
-                    discountAmount = voucher.getDiscountAmount().doubleValue();
-                    session.setAttribute("SESSION_VOUCHER", voucher);
-                    isValidVoucher = true;
+                    message = "This voucher has reached its maximum usage limit.";
+                    session.removeAttribute("SESSION_VOUCHER"); // Xóa khỏi session nếu hết lượt
+                } else if (hasUsed) {
+                    message = "You have already used this voucher.";
+                    session.removeAttribute("SESSION_VOUCHER"); // Xóa khỏi session nếu đã dùng
                 } else {
-                    session.removeAttribute("SESSION_VOUCHER");
+                    // Voucher hợp lệ và chưa sử dụng bởi user này, và còn lượt dùng
+                    discountAmount = voucher.getDiscountAmount();
+                    session.setAttribute("SESSION_VOUCHER", voucher); // Lưu voucher hợp lệ vào session
+                    isValidVoucherApplied = true;
+                    message = "Voucher applied successfully!";
                 }
             } else {
-                session.removeAttribute("SESSION_VOUCHER");
+                // Voucher không tồn tại hoặc không hợp lệ (hết hạn, status=0)
+                message = "Invalid or expired voucher code.";
+                session.removeAttribute("SESSION_VOUCHER"); // Xóa khỏi session nếu không hợp lệ
             }
+        } else {
+             message = "Please enter a voucher code.";
+             session.removeAttribute("SESSION_VOUCHER"); // Xóa khỏi session nếu không nhập code
         }
 
-        double finalTotal = totalAmount.doubleValue() - discountAmount;
 
-        // Return JSON response
+        BigDecimal finalTotal = totalAmount.subtract(discountAmount);
+        if (finalTotal.compareTo(BigDecimal.ZERO) < 0) {
+            finalTotal = BigDecimal.ZERO; // Đảm bảo không âm
+        }
+
+
+        // Trả về JSON response
         out.print("{"
-                + "\"success\": true,"
+                + "\"success\": true," // Luôn trả về success=true vì request xử lý được, kết quả check nằm trong các trường khác
                 + "\"originalTotal\": " + totalAmount + ","
                 + "\"discount\": " + discountAmount + ","
                 + "\"finalTotal\": " + finalTotal + ","
-                + "\"voucherApplied\": " + isValidVoucher + ","
-                + "\"message\": \"" + (isValidVoucher ? "Voucher applied successfully!" : "No valid voucher applied.") + "\""
+                + "\"voucherApplied\": " + isValidVoucherApplied + "," // Cho biết voucher có được áp dụng thực sự không
+                + "\"message\": \"" + message + "\"" // Tin nhắn phản hồi
                 + "}");
 
         out.flush();

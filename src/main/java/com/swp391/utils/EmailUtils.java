@@ -56,6 +56,6 @@ public class EmailUtils {
     }
     
     public static void main(String[] args) {
-        sendOTPMail("vinhpham2761@gmail.com");
+        sendOTPMail("nguyenhotrongdat2004@gmail.com");
     }
 }

@@ -22,13 +22,11 @@
                     <h6 class="fw-semibold mb-0">View Profile</h6>
                     <ul class="d-flex align-items-center gap-2">
                         <li class="fw-medium">
-                            <a href="index.html" class="d-flex align-items-center gap-1 hover-text-primary">
+                            <a class="d-flex align-items-center gap-1 hover-text-primary">
                                 <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                                Dashboard
+                                View Profile
                             </a>
                         </li>
-                        <li>-</li>
-                        <li class="fw-medium">View Profile</li>
                     </ul>
                 </div>
 
@@ -148,24 +146,24 @@
 <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
     <script>
-                                            document.addEventListener('DOMContentLoaded', function () {
-                                                var toastMessage = "${sessionScope.toastMessage}";
-                                                var toastType = "${sessionScope.toastType}";
-                                                if (toastMessage) {
-                                                    iziToast.show({
-                                                        title: toastType === 'success' ? 'Success' : 'Error',
-                                                        message: toastMessage,
-                                                        position: 'topRight',
-                                                        color: toastType === 'success' ? 'green' : 'red',
-                                                        timeout: 5000,
-                                                        onClosing: function () {
-                                                            fetch('${pageContext.request.contextPath}/remove-toast', {
-                                                                method: 'POST'
-                                                            });
-                                                        }
-                                                    });
-                                                }
-                                            });
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            var toastMessage = "${sessionScope.toastMessage}";
+                                                            var toastType = "${sessionScope.toastType}";
+                                                            if (toastMessage) {
+                                                                iziToast.show({
+                                                                    title: toastType === 'success' ? 'Success' : 'Error',
+                                                                    message: toastMessage,
+                                                                    position: 'topRight',
+                                                                    color: toastType === 'success' ? 'green' : 'red',
+                                                                    timeout: 5000,
+                                                                    onClosing: function () {
+                                                                        fetch('${pageContext.request.contextPath}/remove-toast', {
+                                                                            method: 'POST'
+                                                                        });
+                                                                    }
+                                                                });
+                                                            }
+                                                        });
 </script>
 
 

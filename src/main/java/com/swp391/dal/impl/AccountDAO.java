@@ -5,7 +5,6 @@ package com.swp391.dal.impl;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +45,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
 
     @Override
     public boolean update(Account account) {
-        String sql = "UPDATE account SET username = ?, email = ?, password = ?, avatar = ?, first_name = ?, " +
-                "last_name = ?, phone = ?, address = ?, role = ?, status = ? WHERE user_id = ?";
+        String sql = "UPDATE account SET username = ?, email = ?, password = ?, avatar = ?, first_name = ?, "
+                + "last_name = ?, phone = ?, address = ?, role = ?, status = ? WHERE user_id = ?";
 
         try {
             connection = getConnection();
@@ -82,8 +81,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
 
     @Override
     public int insert(Account account) {
-        String sql = "INSERT INTO account (username, email, password, avatar, first_name, last_name, " +
-                "phone, address, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO account (username, email, password, avatar, first_name, last_name, "
+                + "phone, address, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
             connection = getConnection();
@@ -197,7 +196,43 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         return null;
     }
 
-    public Account findByEmail(Account t) {
+    public Account findByUsername(String username) {
+        String sql = "SELECT * FROM account WHERE username = ?";
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return getFromResultSet(resultSet);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error finding account by username: " + ex.getMessage());
+        } finally {
+            closeResources();
+        }
+        return null;
+    }
+
+    public Account findByEmail(String email) {
+        String sql = "SELECT * FROM account WHERE email = ?";
+        try {
+            connection = getConnection();
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, email);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return getFromResultSet(resultSet);
+            }
+        } catch (SQLException ex) {
+            System.out.println("Error finding account by email: " + ex.getMessage());
+        } finally {
+            closeResources();
+        }
+        return null;
+    }
+
+    /*public Account findByEmail(Account t) {
         String sql = "SELECT * FROM account WHERE email = ?";
         try {
             connection = getConnection();
@@ -213,8 +248,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
             closeResources();
         }
         return null;
-    }
-
+    }*/
+    
     public boolean activateAccount(int accountId) {
         String sql = "UPDATE account SET Status = true WHERE user_id = ?";
         try {
@@ -300,8 +335,8 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
     }
 
     public Map<Integer, String> findFullNames(Set<Integer> accountIds) {
-        String sql = "SELECT id, full_name FROM account WHERE id IN (" +
-                accountIds.stream().map(String::valueOf).collect(Collectors.joining(",")) + ")";
+        String sql = "SELECT id, full_name FROM account WHERE id IN ("
+                + accountIds.stream().map(String::valueOf).collect(Collectors.joining(",")) + ")";
         Map<Integer, String> authorNames = new HashMap<>();
 
         try {
@@ -369,7 +404,7 @@ public class AccountDAO extends DBContext implements I_DAO<Account> {
         return accounts;
     }
 
-    public int getTotalFilteredAccounts(String roleFilter, 
+    public int getTotalFilteredAccounts(String roleFilter,
             String statusFilter, String searchFilter) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM account WHERE 1=1 ");
         List<Object> params = new ArrayList<>();

@@ -14,15 +14,15 @@
     </button>
     <div>
         <a href="${pageContext.request.contextPath}/home" class="sidebar-logo">
-            <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="site logo" class="light-logo">
-            <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="site logo" class="dark-logo">
-            <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="site logo" class="logo-icon">
+            <img src="${pageContext.request.contextPath}/assets/images/logof.jpg" alt="site logo" class="light-logo">
+            <img src="${pageContext.request.contextPath}/assets/images/logof.jpg" alt="site logo" class="dark-logo">
+            <img src="${pageContext.request.contextPath}/assets/images/logof.jpg" alt="site logo" class="logo-icon">
         </a>
     </div>
     <div class="sidebar-menu-area">
         <ul class="sidebar-menu" id="sidebar-menu">
             <c:if test="${userRole == 'admin'}">
-                <li class="dropdown">
+                <li>
                     <a href="${pageContext.request.contextPath}/admin/dashboard">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
                         <span>Dashboard</span>
@@ -51,7 +51,7 @@
                 <li>
                     <a href="${pageContext.request.contextPath}/admin/manage-voucher">
                         <iconify-icon icon="carbon:product" class="menu-icon"></iconify-icon>
-                        <span>Vocuher Management</span> 
+                        <span>Voucher Management</span> 
                     </a>
                 </li>
                 <li>

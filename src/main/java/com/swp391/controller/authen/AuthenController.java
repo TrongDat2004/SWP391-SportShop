@@ -95,7 +95,7 @@ public class AuthenController extends HttpServlet {
 
     private String logOut(HttpServletRequest request, HttpServletResponse response) {
         request.getSession().removeAttribute(GlobalConfig.SESSION_ACCOUNT);
-        return HOME_PAGE;
+        return LOGIN_PAGE;
     }
 
     private String loginDoPost(HttpServletRequest request, HttpServletResponse response) {
@@ -142,6 +142,84 @@ public class AuthenController extends HttpServlet {
 
         // Kiểm tra mật khẩu và xác nhận mật khẩu có khớp không
         if (!password.equals(confirmPassword)) {
+            request.setAttribute("errorMessage", "Password and confirm password do not match!");
+            setFormAttributes(request, username, firstName, lastName, gender, email, mobile);
+            return REGISTER_PAGE;
+        }
+
+        // Tạo đối tượng Account (chưa lưu vào DB)
+        Account account = Account.builder()
+                .username(username)
+                .firstName(firstName)
+                .lastName(lastName)
+                .phone(mobile)
+                .email(email)
+                .password(MD5PasswordEncoderUtils.encodeMD5(password)) // Giữ MD5 như gốc
+                .role(GlobalConfig.ROLE_USER)
+                .status(true) // Sẽ lưu với status = 1 sau OTP
+                .build();
+
+        // Kiểm tra trùng username và email
+        AccountDAO accountDAO = new AccountDAO();
+        Account accountFoundByUsername = accountDAO.findByUsername(username);
+        Account accountFoundByEmail = accountDAO.findByEmail(email);
+
+        if (accountFoundByUsername != null) {
+            request.setAttribute("errorMessage", "Username already exists!");
+            setFormAttributes(request, username, firstName, lastName, gender, email, mobile);
+            url = REGISTER_PAGE;
+        } else if (accountFoundByEmail != null) {
+            request.setAttribute("errorMessage", "Email already exists!");
+            setFormAttributes(request, username, firstName, lastName, gender, email, mobile);
+            url = REGISTER_PAGE;
+        } else {
+            // Không lưu vào DB, lưu tạm vào session và gửi OTP
+            HttpSession session = request.getSession();
+            session.setAttribute("pendingAccount", account);
+            session.setAttribute("email", email);
+            session.setMaxInactiveInterval(300);
+
+            // Gửi OTP
+            try {
+                String otp = EmailUtils.sendOTPMail(email);
+                session.setAttribute("otp", otp);
+                session.setAttribute("otp_purpose", "activation"); // Thêm mục đích OTP
+                url = VERIFY_OTP_PAGE;
+            } catch (Exception e) {
+                e.printStackTrace();
+                request.setAttribute("errorMessage", "Failed to send OTP. Please try again.");
+                setFormAttributes(request, username, firstName, lastName, gender, email, mobile);
+                url = REGISTER_PAGE;
+            }
+        }
+        return url;
+    }
+
+// Phương thức hỗ trợ để giữ lại dữ liệu form
+    private void setFormAttributes(HttpServletRequest request, String username, String firstName, String lastName,
+            boolean gender, String email, String mobile) {
+        request.setAttribute("username", username);
+        request.setAttribute("firstName", firstName);
+        request.setAttribute("lastName", lastName);
+        request.setAttribute("gender", String.valueOf(gender));
+        request.setAttribute("email", email);
+        request.setAttribute("mobile", mobile);
+    }
+
+    /*private String signUp(HttpServletRequest request, HttpServletResponse response) {
+        String url;
+        // Lấy thông tin người dùng nhập
+        String username = request.getParameter("username");
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        boolean gender = Boolean.parseBoolean(request.getParameter("gender"));
+        String email = request.getParameter("email");
+        String mobile = request.getParameter("mobile");
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
+
+        // Kiểm tra mật khẩu và xác nhận mật khẩu có khớp không
+        if (!password.equals(confirmPassword)) {
             request.setAttribute("error", "Password and confirm password not matching");
             return REGISTER_PAGE;
         }
@@ -162,9 +240,9 @@ public class AuthenController extends HttpServlet {
 
         if (accountFoundByEmail != null) {
             if (accountFoundByEmail.getUsername().equalsIgnoreCase(email)) {
-                request.setAttribute("error", "Username already exist!!");
+                request.setAttribute("errorMessage", "Username already exist!");
             } else {
-                request.setAttribute("error", "Email already exists!");
+                request.setAttribute("errorMessage", "Email already exists!");
             }
             url = REGISTER_PAGE;
         } else {
@@ -185,14 +263,86 @@ public class AuthenController extends HttpServlet {
 
                 url = VERIFY_OTP_PAGE;
             } else {
-                request.setAttribute("error", "Failed to create account. Please try again.");
+                request.setAttribute("errorMessage", "Username already exist!");
                 url = REGISTER_PAGE;
             }
         }
         return url;
+    }*/
+    private String verifyOTP(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false); // Không tạo session mới
+        String url;
+
+        // Lấy thông tin từ session và request
+        String storedOTP = (String) session.getAttribute("otp");
+        String email = (String) session.getAttribute("email");
+        String enteredOTP = request.getParameter("otp");
+        String purpose = (String) session.getAttribute("otp_purpose");
+
+        // Kiểm tra session
+        if (session == null || storedOTP == null || email == null || purpose == null) {
+            session.setAttribute("toastMessage", "Session expired. Please try again.");
+            session.setAttribute("toastType", "error");
+            return purpose != null && purpose.equals("activation") ? REGISTER_PAGE : ENTER_EMAIL_PAGE;
+        }
+
+        // Kiểm tra OTP
+        if (storedOTP.equals(enteredOTP)) {
+            // OTP đúng
+            session.removeAttribute("otp");
+
+            if ("activation".equals(purpose)) {
+                // Xử lý OTP đăng ký
+                Account pendingAccount = (Account) session.getAttribute("pendingAccount");
+                if (pendingAccount == null) {
+                    session.setAttribute("toastMessage", "Session expired. Please register again.");
+                    session.setAttribute("toastType", "error");
+                    url = REGISTER_PAGE;
+                } else {
+                    // Lưu tài khoản vào database
+                    AccountDAO accountDAO = new AccountDAO();
+                    int accountId = accountDAO.insert(pendingAccount);
+                    if (accountId > 0) {
+                        pendingAccount.setUserId(accountId);
+                        session.setAttribute(GlobalConfig.SESSION_ACCOUNT, pendingAccount);
+                        // Xóa dữ liệu tạm
+                        session.removeAttribute("pendingAccount");
+                        session.removeAttribute("otp_purpose");
+                        session.removeAttribute("email");
+                        url = LOGIN_PAGE; // Giả sử: "/view/authen/login.jsp"
+                    } else {
+                        session.setAttribute("toastMessage", "Failed to create account. Please try again.");
+                        session.setAttribute("toastType", "error");
+                        url = VERIFY_OTP_PAGE;
+                    }
+                }
+            } else if ("password_reset".equals(purpose)) {
+                // Xử lý OTP quên mật khẩu
+                Integer accountId = (Integer) session.getAttribute("account_id");
+                if (accountId == null) {
+                    session.setAttribute("toastMessage", "Session expired. Please try again.");
+                    session.setAttribute("toastType", "error");
+                    url = ENTER_EMAIL_PAGE;
+                } else {
+                    // Xóa otp_purpose, giữ account_id và email
+                    session.removeAttribute("otp_purpose");
+                    url = RESET_PASSWORD_PAGE; // Giả sử: "/view/authen/reset-password.jsp"
+                }
+            } else {
+                session.setAttribute("toastMessage", "Invalid OTP purpose.");
+                session.setAttribute("toastType", "error");
+                url = VERIFY_OTP_PAGE;
+            }
+        } else {
+            session.setAttribute("toastMessage", "Incorrect OTP. Please try again.");
+            session.setAttribute("toastType", "error");
+            url = VERIFY_OTP_PAGE;
+        }
+
+        return url;
     }
 
-    private String verifyOTP(HttpServletRequest request, HttpServletResponse response) {
+    /*private String verifyOTP(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         String storedOTP = (String) session.getAttribute("otp");
         String email = (String) session.getAttribute("email");
@@ -206,8 +356,6 @@ public class AuthenController extends HttpServlet {
         }
 
         if (storedOTP.equals(enteredOTP)) {
-            session.setAttribute("toastMessage", "OTP verified successfully!");
-            session.setAttribute("toastType", "success");
             // OTP is correct
             session.removeAttribute("otp");
 
@@ -224,8 +372,7 @@ public class AuthenController extends HttpServlet {
             session.setAttribute("toastType", "error");
             return VERIFY_OTP_PAGE;
         }
-    }
-
+    }*/
     private String forgotPassword(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         String url;
@@ -233,7 +380,7 @@ public class AuthenController extends HttpServlet {
 
         // Kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
         Account account = Account.builder().email(email).build();
-        Account foundAccount = accountDAO.findByEmail(account);
+        Account foundAccount = accountDAO.findByEmail(email);
 
         if (foundAccount == null) {
             session.setAttribute("toastMessage", "No account found with this email address.");
@@ -302,8 +449,6 @@ public class AuthenController extends HttpServlet {
 
         boolean updated = accountDAO.updatePassword(account);
         if (updated) {
-            session.setAttribute("toastMessage", "Your password has been successfully reset.");
-            session.setAttribute("toastType", "success");
             return LOGIN_PAGE;
         } else {
             session.setAttribute("toastMessage", "Failed to reset password. Please try again.");
@@ -311,30 +456,4 @@ public class AuthenController extends HttpServlet {
             return RESET_PASSWORD_PAGE;
         }
     }
-
-    private String fakeLogin(HttpServletRequest request, HttpServletResponse response) {
-        String url = null;
-        // get về các thong tin người dufg nhập
-        String email = "admin";
-        String password = "1";
-        // kiểm tra thông tin có tồn tại trong DB ko
-        Account account = Account.builder()
-                .username(email)
-                .email(email)
-                .password(MD5PasswordEncoderUtils.encodeMD5(password))
-                .build();
-        Account accFoundByUsernamePass = accountDAO.findByEmailOrUsernameAndPass(account);
-        // true => trang home ( set account vao trong session )
-        if (accFoundByUsernamePass != null) {
-            request.getSession().setAttribute(GlobalConfig.SESSION_ACCOUNT,
-                    accFoundByUsernamePass);
-            url = HOME_PAGE;
-            // false => quay tro lai trang login ( set them thong bao loi )
-        } else {
-            request.setAttribute("error", "Username or password incorrect!!");
-            url = LOGIN_PAGE;
-        }
-        return url;
-    }
-
 }
