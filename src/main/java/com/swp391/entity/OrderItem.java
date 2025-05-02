@@ -13,12 +13,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class OrderItem {
+
     private Integer orderItemId;
     private Integer orderId;
     private Integer productId;
+    private Integer productSizeId; // <<< THÊM: ID của size sản phẩm được đặt
     private Integer quantity;
-    private BigDecimal price;
+    private BigDecimal price; // Giá tại thời điểm đặt hàng
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // Quan hệ
     private Product product;
+    private ProductSize productSize; // <<< THÊM: Thông tin size cụ thể (tùy chọn, có thể lấy qua productSizeId)
 }

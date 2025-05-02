@@ -86,7 +86,7 @@
                         <h2>Our Team</h2>
                         <div class="row mt-4">
                             <div class="col-md-6 team-member">
-                                <img src="assets/images/dat.png" alt="Team Member">
+                                <img src="assets/images/dat.jpg" alt="Team Member">
                                 <h5>Nguyễn Hồ Trọng Đạt</h5>
                                 <p>Manager</p>
                             </div>
@@ -96,13 +96,23 @@
                                 <p>Developer</p>
                             </div>
                             <div class="col-md-6 team-member mt-4">
-                                <img src="assets/images/anh.jpg" alt="Team Member">
+                                <img src="assets/images/loananh.jpg" alt="Team Member">
                                 <h5>Nguyễn Loan Anh</h5>
                                 <p>Developer</p>
                             </div>
                             <div class="col-md-6 team-member mt-4">
                                 <img src="assets/images/phuc.jpg" alt="Team Member">
                                 <h5>Trương Hoàng Phúc</h5>
+                                <p>Developer</p>
+                            </div>
+                            <div class="col-md-6 team-member mt-4">
+                                <img src="assets/images/khoa.jpg" alt="Team Member">
+                                <h5>Nguyễn Ngọc Khoa</h5>
+                                <p>Developer</p>
+                            </div>
+                            <div class="col-md-6 team-member mt-4">
+                                <img src="assets/images/thinh.jpg" alt="Team Member">
+                                <h5>Liên Xuân Thịnh</h5>
                                 <p>Developer</p>
                             </div>
                         </div>

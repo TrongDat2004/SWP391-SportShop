@@ -43410,32 +43410,6 @@ html.lenis body {
   pointer-events: none;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #EB453B;
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-button,
-::-webkit-scrollbar-thumb {
-  background: #E9FFA4;
-  border-radius: 5px;
-}
-
-::-moz-selection {
-  color: #EB453B;
-  background: #E9FFA4;
-}
-
-::selection {
-  color: #EB453B;
-  background: #E9FFA4;
-}
-
 section,
 footer {
   position: relative;
@@ -44299,6 +44273,7 @@ input[type=number]::-webkit-outer-spin-button {
     display: none;
   }
 }
+
 .top-0 {
   top: 0% !important;
 }

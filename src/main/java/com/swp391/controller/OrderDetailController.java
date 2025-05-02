@@ -5,8 +5,11 @@
 package com.swp391.controller;
 
 import com.swp391.config.GlobalConfig;
+import com.swp391.dal.impl.CancelDAO;
 import com.swp391.dal.impl.OrderDAO;
 import com.swp391.entity.Account;
+import com.swp391.entity.Cancel;
+import com.swp391.entity.CancelReason;
 import com.swp391.entity.Order;
 import com.swp391.entity.OrderItem;
 import java.io.IOException;
@@ -27,10 +30,12 @@ import java.util.List;
 public class OrderDetailController extends HttpServlet {
 
     private OrderDAO orderDAO;
+    private CancelDAO cancelDAO;
 
     @Override
     public void init() throws ServletException {
         orderDAO = new OrderDAO();
+        cancelDAO = new CancelDAO();
     }
 
     @Override
@@ -52,6 +57,10 @@ public class OrderDetailController extends HttpServlet {
                 List<OrderItem> details = orderDAO.getOrderItemsByOrderId(orderId);
                 request.setAttribute("order", order);
                 request.setAttribute("details", details);
+
+                // 🔥 Thêm danh sách lý do hủy
+                List<CancelReason> cancelReasons = cancelDAO.getAllCancelReasons();
+                request.setAttribute("cancelReasons", cancelReasons);
                 request.getRequestDispatcher("./view/order/order-detail.jsp").forward(request, response);
             } else {
                 response.sendRedirect("history-order?status=false&type=no_found");
@@ -60,54 +69,83 @@ public class OrderDetailController extends HttpServlet {
             response.sendRedirect("history-order?status=false&type=no_order_id");
         }
     }
-    
-    
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String action = request.getParameter("action");
-        if(action.equals("cancel")) {
+        if ("cancel".equals(action)) {
             this.cancelOrder(request, response);
         }
     }
 
     private void cancelOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         int orderIdR = 0;
+        
         try {
-             HttpSession session = request.getSession();
-        Account account = (Account) session.getAttribute(GlobalConfig.SESSION_ACCOUNT);
+            HttpSession session = request.getSession();
+            Account account = (Account) session.getAttribute(GlobalConfig.SESSION_ACCOUNT);
+            if (account == null) {
+                response.sendRedirect("authen?action=login");
+                return;
+            }
 
-        if (account == null) {
-            response.sendRedirect("authen?action=login");
-            return;
-        }
-
-        int userId = account.getUserId();
+            int userId = account.getUserId();
             int orderId = Integer.parseInt(request.getParameter("orderId"));
+            String reason = request.getParameter("cancelReason");
+            String customReason = request.getParameter("customReason");
+            String finalReason = "Other".equals(reason) ? customReason : reason;
 
-            OrderDAO orderDAO = new OrderDAO();
-            Order order = orderDAO.getOrderById(orderId, userId); 
-            
+            if (finalReason == null || finalReason.trim().isEmpty()) {
+                request.setAttribute("toastMessage", "Please provide a reason for cancellation!");
+                request.setAttribute("toastType", "error");
+                response.sendRedirect(request.getContextPath() + "/order-details?orderid=" + orderId);
+                return;
+            }
+
+            Order order = this.orderDAO.getOrderById(orderId, userId);
             if (order == null) {
-                request.getSession().setAttribute("toastMessage", "Order not found or you don't have permission!");
-                request.getSession().setAttribute("toastType", "error");
+                session.setAttribute("toastMessage",  "Order not found or access denied!");
+                session.setAttribute("toastType", "error");
                 response.sendRedirect(request.getContextPath() + "/user/order-history");
                 return;
             }
-            orderIdR = orderId;
-            boolean success = orderDAO.cancelOrder(orderId);
-            if (success) {
-                request.getSession().setAttribute("toastMessage", "Order cancelled successfully!");
+
+            String cancelledBy = "customer".equalsIgnoreCase(account.getRole()) ? "customer" : "staff";
+
+            // Tạo đối tượng Cancel
+            Cancel cancel = Cancel.builder()
+                    .orderId(orderId)
+                    .userId(userId)
+                    .cancelledBy(cancelledBy)
+                    .cancelReason(finalReason)
+                    .status(order.getStatus())
+                    .total(order.getTotal())
+                    .shippingAddress(order.getShippingAddress())
+                    .paymentMethod(order.getPaymentMethod())
+                    .email(account.getEmail())
+                    .fullname(account.getFirstName() + " " + account.getLastName())
+                    .phone(account.getPhone())
+                    .build();
+
+            boolean saved = this.cancelDAO.insertCancel(cancel);
+            boolean updated = this.orderDAO.updateOrderStatus(orderId, "cancelled");
+            
+            if (saved && updated) {
+                request.getSession().setAttribute("toastMessage",  "Order cancelled successfully!");
                 request.getSession().setAttribute("toastType", "success");
             } else {
-                request.getSession().setAttribute("toastMessage", "Failed to cancel order! It may be completed.");
-                request.getSession().setAttribute("toastType", "error");
+                request.setAttribute("toastMessage",  "Unable to cancel the order!");
+                request.setAttribute("toastType", "error");
             }
+            orderIdR = orderId;
+
         } catch (NumberFormatException e) {
-            request.getSession().setAttribute("toastMessage", "Invalid order ID!");
-            request.getSession().setAttribute("toastType", "error");
+            request.setAttribute("toastMessage",  "Invalid Order ID!");
+            request.setAttribute("toastType", "error");
         } catch (Exception e) {
-            request.getSession().setAttribute("toastMessage", "Error: " + e.getMessage());
-            request.getSession().setAttribute("toastType", "error");
+            request.setAttribute("toastMessage",  "An error occurred: " + e.getMessage());
+            request.setAttribute("toastType", "error");
         }
 
         response.sendRedirect(request.getContextPath() + "/order-details?orderid=" + orderIdR);

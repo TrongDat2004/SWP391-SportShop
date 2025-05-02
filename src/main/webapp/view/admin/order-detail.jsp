@@ -61,6 +61,12 @@
                     background-color: #dc3545; /* Màu đỏ */
                     color: white;
                 }
+                .product-size {
+                    font-size: 0.85em;  
+                    color: #64748b;     
+                    display: block;   
+                    margin-top: 4px;   
+                }
             </style>
         </head>
 
@@ -181,83 +187,167 @@
                                                         <option value="nopaid" ${order.status == 'nopaid' ? 'selected' : ''}>No Paid</option>
                                                     </select>
                                                 </div>
-                                                <button type="submit" class="btn btn-primary">Update Status</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </c:if>
-                            </c:if>
-                            <h4 class="text-dark mb-3 mt-3">Product List</h4>
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover shadow-sm rounded">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Product Name</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach var="item" items="${details}" varStatus="loop">
-                                            <tr>
-                                                <td>${loop.index + 1}</td>
-                                                <td>${item.product.name}</td>
-                                                <td>${item.quantity}</td>
-                                                <td><fmt:formatNumber value="${item.price}" pattern="#,##0"/> VND</td>
-                                                <td><fmt:formatNumber value="${item.price * item.quantity}" pattern="#,##0"/> VND</td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
-                            </div>
 
-                            <!-- Back Button -->
-                            <div class="text-center mt-4">
-                                <a href="manage-order" class="btn btn-outline-primary px-4 py-2 rounded-3">Back to Order List</a>
-                            </div>
+                                                <!-- Lý do hủy đơn: Chỉ hiện khi chọn Cancelled -->
+                                                <div id="cancel-reason-container" style="display: none;">
+                                                    <div class="mb-3">
+                                                        <label for="cancelReason" class="form-label">Select Reason:</label>
+                                                        <select class="form-select" name="cancelReason" id="cancelReason" required>
+                                                            <option value="">-- Please choose a reason --</option>
+                                                            <c:forEach var="reason" items="${cancelReasons}">
+                                                                <c:if test="${reason.role == 'staff'}">
+                                                                    <option value="${reason.reasonText}">${reason.reasonText}</option>
+                                                                </c:if>
+                                                            </c:forEach>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3" id="other-reason-container" style="display: none;">
+                                                    <label for="otherReason" class="form-label">Other Reason (Optional)</label>
+                                                    <input type="text" class="form-control" name="otherReason" id="otherReason" placeholder="Enter custom reason...">
+                                                </div>
+                                                <script>
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        // Chức năng hiển thị form lý do hủy khi chọn trạng thái "Cancelled"
+                                                        document.getElementById('status').addEventListener('change', function () {
+                                                            var cancelReasonContainer = document.getElementById('cancel-reason-container');
+                                                            var otherReasonContainer = document.getElementById('other-reason-container');
+                                                            if (this.value === 'cancelled') {
+                                                                cancelReasonContainer.style.display = 'block';
+                                                            } else {
+                                                                cancelReasonContainer.style.display = 'none';
+                                                                otherReasonContainer.style.display = 'none';
+                                                            }
+                                                        });
+
+                                                        // Chức năng hiển thị ô nhập lý do khác khi chọn "Other" trong dropdown lý do hủy
+                                                        document.getElementById('cancelReason').addEventListener('change', function () {
+                                                            var otherReasonContainer = document.getElementById('other-reason-container');
+                                                            if (this.value === 'Other') {
+                                                                otherReasonContainer.style.display = 'block';
+                                                            } else {
+                                                                otherReasonContainer.style.display = 'none';
+                                                            }
+                                                        });
+
+                                                        // Hiển thị thông báo toast nếu có thông tin trạng thái
+                                                        var toastStatus = "${param.statusM}";
+                                                        var toastType = "${param.typeM}";
+                                                        if (toastStatus) {
+                                                            iziToast.show({
+                                                                title: toastStatus === "1" ? 'Success' : 'Error',
+                                                                message: toastType === 'add' ? "Add successfully" : "Update successfully",
+                                                                position: 'topRight',
+                                                                color: toastStatus === '1' ? 'green' : 'red',
+                                                                timeout: 5000,
+                                                                onClosing: function () {
+                                                                    fetch('${pageContext.request.contextPath}/remove-toast', {
+                                                                        method: 'POST',
+                                                                        headers: {
+                                                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                                                        },
+                                                                    }).then(response => {
+                                                                        if (!response.ok) {
+                                                                            console.error('Failed to remove toast attributes');
+                                                                        }
+                                                                    }).catch(error => {
+                                                                        console.error('Error:', error);
+                                                                    });
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+                                                </script>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </c:if>
+                        </c:if>
+                        <h4 class="text-dark mb-3 mt-3">Product List</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover shadow-sm rounded">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product Name</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="item" items="${details}" varStatus="loop">
+                                        <tr>
+                                            <td>${loop.index + 1}</td>
+                                            <td data-label="Product">
+                                                <c:if test="${item.product != null}">
+                                                    <a href="product-detail?id=${item.product.productId}" class="product-name">${item.product.name}</a>
+                                                    <%-- HIỂN THỊ SIZE Ở ĐÂY --%>
+                                                    <c:if test="${item.productSize != null && item.productSize.size != 'One Size' && item.productSize.size != 'N/A'}">
+                                                        <span class="product-size">Size: ${item.productSize.size}</span>
+                                                    </c:if>
+                                                </c:if>
+                                                <c:if test="${item.product == null}">
+                                                    <span class="product-name text-danger">Product unavailable</span>
+                                                </c:if>
+                                            </td>
+                                            <td>${item.quantity}</td>
+                                            <td><fmt:formatNumber value="${item.price}" pattern="#,##0"/> VND</td>
+                                            <td><fmt:formatNumber value="${item.price * item.quantity}" pattern="#,##0"/> VND</td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Back Button -->
+                        <div class="text-center mt-4">
+                            <a href="manage-order" class="btn btn-outline-primary px-4 py-2 rounded-3">Back to Order List</a>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            var toastStatus = "${param.statusM}";
-                            var toastType = "${param.typeM}";
-                            if (toastStatus) {
-                                iziToast.show({
-                                    title: toastStatus === "1" ? 'Success' : 'Error',
-                                    message: toastType === 'add' ? "Add successfully" : "Update successfully",
-                                    position: 'topRight',
-                                    color: toastStatus === '1' ? 'green' : 'red',
-                                    timeout: 5000,
-                                    onClosing: function () {
-                                        fetch('${pageContext.request.contextPath}/remove-toast', {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/x-www-form-urlencoded',
-                                            },
-                                        }).then(response => {
-                                            if (!response.ok) {
-                                                console.error('Failed to remove toast attributes');
-                                            }
-                                        }).catch(error => {
-                                            console.error('Error:', error);
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                </script>
+            <jsp:include page="../common/dashboard/js-dashboard.jsp"></jsp:include>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
                 <script>
-                    function confirmDelete(productId) {
-                        if (confirm('Are you sure you want to delete this product?')) {
-                            window.location.href = '${pageContext.request.contextPath}/admin/manage-product?action=delete&id=' + productId;
-                        }
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        var toastStatus = "${param.statusM}";
+                                                        var toastType = "${param.typeM}";
+                                                        if (toastStatus) {
+                                                            iziToast.show({
+                                                                title: toastStatus === "1" ? 'Success' : 'Error',
+                                                                message: toastType === 'add' ? "Add successfully" : "Update successfully",
+                                                                position: 'topRight',
+                                                                color: toastStatus === '1' ? 'green' : 'red',
+                                                                timeout: 5000,
+                                                                onClosing: function () {
+                                                                    fetch('${pageContext.request.contextPath}/remove-toast', {
+                                                                        method: 'POST',
+                                                                        headers: {
+                                                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                                                        },
+                                                                    }).then(response => {
+                                                                        if (!response.ok) {
+                                                                            console.error('Failed to remove toast attributes');
+                                                                        }
+                                                                    }).catch(error => {
+                                                                        console.error('Error:', error);
+                                                                    });
+                                                                }
+                                                            });
+                                                        }
+                                                    });
+            </script>
+            <script>
+                function confirmDelete(productId) {
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        window.location.href = '${pageContext.request.contextPath}/admin/manage-product?action=delete&id=' + productId;
                     }
-                </script>
+                }
+            </script>
         </body>
     </html>

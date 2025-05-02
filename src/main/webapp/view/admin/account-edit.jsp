@@ -43,12 +43,12 @@
                         <div class="col-md-6">
                             <label class="form-label">First Name</label>
                             <input type="text" class="form-control" name="firstName" 
-                                   value="${account.firstName}" required>
+                                   value="${account.firstName}" readonly>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Last Name</label>
                             <input type="text" class="form-control" name="lastName" 
-                                   value="${account.lastName}" required>
+                                   value="${account.lastName}" readonly>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
@@ -58,12 +58,12 @@
                         <div class="col-md-6">
                             <label class="form-label">Phone Number</label>
                             <input type="tel" class="form-control" name="phone" 
-                                   value="${account.phone}" required>
+                                   value="${account.phone}" readonly>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Address</label>
                             <input type="text" class="form-control" name="address" 
-                                   value="${account.address}">
+                                   value="${account.address}" readonly>
                         </div>
 
                         <!-- Account Information -->
@@ -71,11 +71,6 @@
                             <label class="form-label">Username</label>
                             <input type="text" class="form-control" name="username" 
                                    value="${account.username}" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Password</label>
-                            <input type="password" class="form-control" name="password" 
-                                   placeholder="Leave blank to keep current password">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Role</label>

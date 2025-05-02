@@ -6,8 +6,10 @@ package com.swp391.controller.home;
 
 import com.swp391.dal.impl.CategoryDAO;
 import com.swp391.dal.impl.ProductDAO;
+import com.swp391.dal.impl.SliderDAO;
 import com.swp391.entity.Category;
 import com.swp391.entity.Product;
+import com.swp391.entity.Slider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -23,12 +25,15 @@ public class HomeController extends HttpServlet {
     private final String HOME_PAGE = "view/home/shop.jsp";
     private final ProductDAO productDAO = new ProductDAO();
     private final CategoryDAO categoryDAO = new CategoryDAO();
+      private final SliderDAO sliderDAO = new SliderDAO();//thêm dòng này
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Product> products = productDAO.getLatestActiveProducts();
         List<Category> categories = categoryDAO.findAllActiveCategories();
+         List<Slider> activeSliders = sliderDAO.getActiveSliders();//thêm dòng này
+        request.setAttribute("Active", activeSliders);//thêm dòng này
         request.setAttribute("products", products);
          request.setAttribute("categories", categories);
         request.getRequestDispatcher(HOME_PAGE).forward(request, response);

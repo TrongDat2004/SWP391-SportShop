@@ -218,7 +218,14 @@ public class ManageVoucherController extends HttpServlet {
             }
 
             // Tạo và insert voucher
-            Voucher voucher = new Voucher(0, code.trim(), discountAmount, start, end, status, maxUsage, LocalDateTime.now());
+            Voucher voucher = Voucher.builder()
+                    .code(code.trim())
+                    .discountAmount(discountAmount)
+                    .startDate(start)
+                    .expirationDate(end)
+                    .status(status)
+                    .maxUsage(maxUsage)
+                    .build();
             int result = voucherDAO.insert(voucher);
             if (result > 0) {
                 response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?statusM=1&typeM=add");
@@ -345,7 +352,15 @@ public class ManageVoucherController extends HttpServlet {
             }
 
             // Tạo và update voucher
-            Voucher voucher = new Voucher(voucherId, code.trim(), discountAmount, start, end, status, maxUsage, null);
+            Voucher voucher = Voucher.builder()
+                    .voucherId(voucherId)
+                    .code(code.trim())
+                    .discountAmount(discountAmount)
+                    .startDate(start)
+                    .expirationDate(end)
+                    .status(status)
+                    .maxUsage(maxUsage)
+                    .build();
             boolean result = voucherDAO.update(voucher);
             if (result) {
                 response.sendRedirect(request.getContextPath() + "/admin/manage-voucher?statusM=1&typeM=edit");
@@ -378,3 +393,4 @@ public class ManageVoucherController extends HttpServlet {
         }
     }
 }
+

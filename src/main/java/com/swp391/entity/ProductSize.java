@@ -11,12 +11,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartItem {
-    private Integer cartItemId;
-    private Integer cartId;
+public class ProductSize {
+    private Integer productSizeId;
     private Integer productId;
-    private Integer quantity;
+    private String size; 
+    private Integer stock;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Product product;
 }

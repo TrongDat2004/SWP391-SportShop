@@ -6,7 +6,7 @@ package com.swp391.utils;
 
 
 import com.swp391.config.GlobalConfig;
-import com.swp391.controller.authen.UserGoogleDto;
+//import com.swp391.controller.authen.UserGoogleDto;
 import com.swp391.entity.Account;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,15 +29,15 @@ public class GlobalUtils {
         return Integer.parseInt(otp.toString());
     }
     
-    public static Account convertToAccount(UserGoogleDto userGoogleDto) {
-        Account account = new Account();
-        account.setUsername(userGoogleDto.getEmail());
-        account.setEmail(userGoogleDto.getEmail());
-        account.setPassword(""); // Set default or encrypted password
-        account.setRole(GlobalConfig.ROLE_USER); // Default role ID, adjust as needed
-//        account.setIsActive(true);
-        return account;
-    }
+//    public static Account convertToAccount(UserGoogleDto userGoogleDto) {
+//        Account account = new Account();
+//        account.setUsername(userGoogleDto.getEmail());
+//        account.setEmail(userGoogleDto.getEmail());
+//        account.setPassword(""); // Set default or encrypted password
+//        account.setRole(GlobalConfig.ROLE_USER); // Default role ID, adjust as needed
+////        account.setIsActive(true);
+//        return account;
+//    }
 
     /**
      * Hàm định dạng LocalDateTime

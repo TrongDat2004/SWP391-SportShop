@@ -8,7 +8,7 @@
                         <div class="col-lg-4 col-auto">
                             <div class="mb-lg-6 mb-4">
                                 <div class="footer-logo mb-lg-4 mb-2">
-                                    <img src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="logo">
+                                    <img src="${pageContext.request.contextPath}/assets/images/logof.jpg" alt="logo">
                                 </div>
                                 <p class="text-n0 text-base fw-normal ch-40">
                                     Selling premium products, designed to

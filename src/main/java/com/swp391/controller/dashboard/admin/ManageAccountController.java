@@ -154,7 +154,6 @@ public class ManageAccountController extends HttpServlet {
         StringBuilder errorMsg = new StringBuilder();
         try {
             String idStr = request.getParameter("id");
-            String password = request.getParameter("password");
             String firstName = request.getParameter("firstName");
             String lastName = request.getParameter("lastName");
             String phone = request.getParameter("phone");
@@ -171,14 +170,6 @@ public class ManageAccountController extends HttpServlet {
             } catch (NumberFormatException e) {
                 errorMsg.append("Account ID must be a valid number. ");
                 accountId = -1;
-            }
-
-            if (password != null && !password.isEmpty()) {
-                if (password.length() < 6) {
-                    errorMsg.append("Password must be at least 6 characters. ");
-                } else if (password.length() > 50) {
-                    errorMsg.append("Password must not exceed 50 characters. ");
-                }
             }
 
             if (firstName == null || firstName.trim().isEmpty()) {
@@ -230,9 +221,6 @@ public class ManageAccountController extends HttpServlet {
                 account.setAddress(address.trim());
                 account.setStatus(status);
                 account.setRole(role);
-                if (password != null && !password.isEmpty()) {
-                    account.setPassword(password);
-                }
 
                 account.setUpdatedAt(LocalDateTime.now());
 
@@ -337,15 +325,15 @@ public class ManageAccountController extends HttpServlet {
             } else if (email.length() > 100) {
                 errorMsg.append("Email must not exceed 100 characters. ");
             }
-
             if (password == null || password.trim().isEmpty()) {
                 errorMsg.append("Password is required. ");
             } else if (password.length() < 6) {
                 errorMsg.append("Password must be at least 6 characters. ");
+                request.setAttribute("passwordError", "Password must be at least 6 characters.");
             } else if (password.length() > 50) {
                 errorMsg.append("Password must not exceed 50 characters. ");
+                request.setAttribute("passwordError", "Password must not exceed 50 characters.");
             }
-
             if (firstName == null || firstName.trim().isEmpty()) {
                 errorMsg.append("First name is required. ");
             } else if (firstName.length() > 50) {
@@ -362,6 +350,7 @@ public class ManageAccountController extends HttpServlet {
                 errorMsg.append("Phone number is required. ");
             } else if (!phone.matches("^0\\d{9}$")) {
                 errorMsg.append("Phone number must be a 10-digit number starting with 0. ");
+                request.setAttribute("phoneError", "Phone number must be a 10-digit number starting with 0.");
             }
 
             if (address == null || address.trim().isEmpty()) {
@@ -377,18 +366,41 @@ public class ManageAccountController extends HttpServlet {
                 errorMsg.append("Invalid status value. ");
                 status = false;
             }
+            boolean hasError = false;
 
-            if (errorMsg.length() > 0) {
-                request.getSession().setAttribute("toastMessage", errorMsg.toString());
-                request.getSession().setAttribute("toastType", "error");
-                response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=add");
+            AccountDAO accountDAO = new AccountDAO();
+            boolean usernameExists = accountDAO.isUsernameExist(username);
+            boolean emailExists = accountDAO.isEmailExist(email);
+
+            if (usernameExists || emailExists || errorMsg.length() > 0) {
+                if (usernameExists) {
+                    request.setAttribute("usernameError", "Email already exists! Please enter another email.");
+                }
+                if (emailExists) {
+                    request.setAttribute("emailError", "Username already exists! Please enter another username.");
+                }
+                if (errorMsg.length() > 0) {
+                    request.setAttribute("generalError", errorMsg.toString());
+                }
+
+                // Keep other input values
+                request.setAttribute("firstName", firstName);
+                request.setAttribute("lastName", lastName);
+                request.setAttribute("phone", phone);
+                request.setAttribute("address", address);
+                request.setAttribute("role", role);
+                request.setAttribute("status", status ? "true" : "false");
+
+                // Do not set username to keep it empty in case of duplicate
+                request.getRequestDispatcher("/view/admin/account-add.jsp").forward(request, response);
                 return;
             }
 
+            // Create and insert new account
             Account newAccount = Account.builder()
                     .username(username.trim())
                     .email(email.trim())
-                    .password(password)
+                    .password(hashMD5(password))
                     .firstName(firstName.trim())
                     .lastName(lastName.trim())
                     .phone(phone.trim())
@@ -399,7 +411,6 @@ public class ManageAccountController extends HttpServlet {
                     .updatedAt(LocalDateTime.now())
                     .build();
 
-            AccountDAO accountDAO = new AccountDAO();
             boolean isSuccess = accountDAO.insert(newAccount) > 0;
 
             if (isSuccess) {
@@ -416,4 +427,15 @@ public class ManageAccountController extends HttpServlet {
 
         response.sendRedirect(request.getContextPath() + "/admin/manage-account?action=list");
     }
+
+    private String hashMD5(String input) throws Exception {
+        java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+        byte[] array = md.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder();
+        for (byte b : array) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
 }

@@ -3,7 +3,7 @@ const REGEX = {
     USERNAME: /^[a-zA-Z0-9_]{4,20}$/,        // 4-20 chars, alphanumeric + underscore
     NAME: /^[A-Za-z]+$/,                     // Letters only
     EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,     // Standard email format
-    MOBILE: /^[0-9]{10}$/,                   // Exactly 10 digits
+    MOBILE: /^0[0-9]{9}$/,                   // Exactly 10 digits
     PASSWORD_COMPLEXITY: /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/ // 8+ chars, 1 uppercase, 1 lowercase, 1 number
 };
 
@@ -14,7 +14,7 @@ const MESSAGES = {
     FIRST_NAME: "First Name should contain only letters",
     LAST_NAME: "Last Name should contain only letters",
     EMAIL: "Please enter a valid email address",
-    MOBILE: "Mobile number must be exactly 10 digits",
+    MOBILE: "Mobile number must start with 0 and have 10 or more digits",
     PASSWORD: "Password must contain 8+ characters, at least one uppercase letter, one lowercase letter, and one number",
     PASSWORD_MATCH: "Passwords do not match",
     GENDER: "Please select a valid gender"

@@ -1,17 +1,24 @@
 package com.swp391.entity;
 
-import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Order {
+public class Cancel {
+
+    private Integer cancelId;
     private Integer orderId;
     private Integer userId;
-    private String status; // pending, accepted, cancelled, completed
+    private String cancelledBy;
+    private String cancelReason;
+    private String status;
     private BigDecimal total;
     private String shippingAddress;
     private String paymentMethod;
@@ -20,6 +27,5 @@ public class Order {
     private String email;
     private String fullname;
     private String phone;
-    private Integer appliedVoucherId;
-    private BigDecimal discountAmount;
+
 }

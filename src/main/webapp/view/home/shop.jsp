@@ -1,6 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <c:set var="account" value="${sessionScope.account}" />
 <c:set var="userRole" value="${account != null ? account.role : null}" />
 <!doctype html>
@@ -146,53 +148,70 @@
             <!-- main start -->
             <main class="pt-12">
                 <!-- hero section start -->
-                <section class="inner-hero-section" style="padding-top: 130px">
-                    <div class="container-fluid">
-                        <div class="swiper mySwiper">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide"><img src="./assets/images/inner-page-banner.png" class="slider-img" alt="Slide 1"></div>
-                                <div class="swiper-slide"><img src="./assets/images/slider/1.jpg" class="slider-img" alt="Slide 2"></div>
-                                <div class="swiper-slide"><img src="./assets/images/slider/2.jpg" class="slider-img" alt="Slide 3"></div>
-                                <div class="swiper-slide"><img src="./assets/images/slider/3.jpg" class="slider-img" alt="Slide 4"></div>
+                <!-- Swiper Wrapper -->
+                <section class="inner-hero-section" style="padding-top: 130px;">
+                    <!-- slider không nằm trong container-fluid để không bị giới hạn padding -->
+                    <div class="swiper mySwiper">
+                        <div class="swiper-wrapper">
+                        <c:forEach var="slider" items="${Active}" varStatus="loop">
+                            <div class="swiper-slide">
+                                <a href="product-detail?id=${slider.productId}" class="d-block">
+                                    <img class="slider-img"
+                                         src="${pageContext.request.contextPath}/${slider.imageUrl}"
+                                         alt="Slider Image ${loop.count}">
+                                </a>
                             </div>
-                            <!-- Pagination & Navigation -->
-                            <div class="swiper-pagination"></div>
-                            <div class="swiper-button-prev"></div>
-                            <div class="swiper-button-next"></div>
-                        </div>
+                        </c:forEach>
+                        <c:if test="${empty Active}">
+                            <div class="swiper-slide" style="display:flex;align-items:center;justify-content:center">
+                                <span>No slider images available.</span>
+                            </div>
+                        </c:if>
                     </div>
-                </section>
-                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css">
-                <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-pagination"></div>
+                </div>
 
-                <style>
-                    .swiper {
-                        width: 100%;
-                        height: 520px;
-                    }
-                    .slider-img {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-                        object-position: center;
-                    }
-                </style>
+                <!-- sau slider mới đến container nội dung -->
+                <div class="container-fluid">
+                    <!-- phần products, tabs, ... -->
+                </div>
+            </section>
+
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+
+            <style>
+                .swiper {
+                    width: 100%;
+                    height: 500px;
+                }
+                .slider-img {
+                    width: 100%;
+                    height: 500px;
+                    object-fit: cover;
+                    object-position: center;
+
+                }
+
+            </style>
 
 
-                <script>
-                    var swiper = new Swiper(".mySwiper", {
-                        loop: true,
-                        autoplay: {delay: 3000},
-                        pagination: {el: ".swiper-pagination", clickable: true},
-                        navigation: {nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev"}
-                    });
-                </script>
+            <script>
+                var swiper = new Swiper(".mySwiper", {
+                    loop: true,
+                    autoplay: {delay: 3000},
+                    pagination: {el: ".swiper-pagination", clickable: true},
+                    navigation: {nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev"}
+                });
+            </script>
 
-                <!-- product section start -->
-                <section class="product-section px-xl-20 px-lg-10 px-sm-7 pb-120">
-                    <div class="container-fluid">
-                        <div class="category-tabs mb-5">
-                            <button class="tab-btn <c:if test="${categoryId == null || categoryId == 0}">active</c:if>"
+            <!-- product section start -->
+            <section class="product-section px-xl-20 px-lg-10 px-sm-7 pb-120">
+                <div class="container-fluid">
+                    <div class="category-tabs mb-5">
+                        <button class="tab-btn <c:if test="${categoryId == null || categoryId == 0}">active</c:if>"
                                 data-tab="all" data-href-load="products?keyword=${keyword}&minPrice=${minPrice}&maxPrice=${maxPrice}">
                             All
                         </button>
@@ -207,11 +226,11 @@
                 </div>
                 <!-- tab content 1 -->
                 <div class="tab-content active" data-tab="all">
-                    <div class="row g-0 mb-1">
+                    <div class="row g-4 mb-1">
                         <c:choose>
                             <c:when test="${not empty products}">
                                 <c:forEach var="product" items="${products}">
-                                    <div class="col-lg-4 col-xs-6 mb-4">
+                                    <div class="col-lg-4 col-xs-6">
                                         <div class="product-card2 position-relative p-xl-10 p-lg-8 p-6 bg-n0 border border-n100-5 box-style box-n20 card-tilt">
                                             <div class="product-thumb-wrapper position-relative">
                                                 <div class="product-thumb hover-cursor" data-hover-text="View Product">
@@ -222,25 +241,19 @@
                                             </div>
                                             <span class="d-block h-1px w-100 bg-n100-1 mb-lg-6 mb-4 mt-lg-10 mt-6"></span>
                                             <div class="product-info-wrapper" style="min-height: 120px;">
-                                                <div class="mb-xxl-7 mb-md-5 mb-3">
-                                                    <a href="product-detail?id=${product.productId}">
-                                                        <h4 class="text-n100 mb-2 hover-text-secondary2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; height: 2.3em;">
+                                                <div class="mb-3">
+                                                    <a href="product-detail?id=${product.productId}" class="text-decoration-none">
+                                                        <h4 class="text-n100 mb-2 hover-text-secondary2 fs-6" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; min-height: 2.8em;">
                                                             ${product.name}
                                                         </h4>
                                                     </a>
                                                 </div>
-                                                <div class="d-between flex-wrap gap-4">
+                                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                                                     <div class="d-grid">
-                                                        <span class="text-xl fw-semibold text-secondary2">${product.price} VNĐ</span>
+                                                        <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="VNĐ" pattern="#,##0 VNĐ" var="formattedPrice"/>
+                                                        <span class="text-xl fw-semibold text-secondary2">${formattedPrice}</span>
                                                     </div>
-                                                    <c:if test="${userRole != 'admin'}">
-                                                        <form method="POST" action="cart" class="product-form">
-                                                            <input type="hidden" name="productId" value="${product.productId}">
-                                                            <input type="hidden" name="action" value="add">
-                                                            <input type="hidden" name="quantity" id="quantity" min="1" max="${product.stock}" value="1" class="quantity-input">
-                                                            <button class="outline-btn text-n100 fw-medium box-style box-secondary2">ADD TO CART</button>
-                                                        </form>
-                                                    </c:if>
+                                                    <a href="product-detail?id=${product.productId}" class="outline-btn text-n100 fw-medium box-style box-secondary2 py-2 px-3">View Details</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -275,16 +288,16 @@
             <!-- footer section end -->
             <script  src="${pageContext.request.contextPath}/assets/js/main.js"></script>
         <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        var tabButtons = document.querySelectorAll(".tab-btn");
+                document.addEventListener("DOMContentLoaded", function () {
+                    var tabButtons = document.querySelectorAll(".tab-btn");
 
-                        tabButtons.forEach(function (button) {
-                            button.addEventListener("click", function (e) {
-                                var url = this.getAttribute("data-href-load");
-                                window.location.href = url;
-                            });
+                    tabButtons.forEach(function (button) {
+                        button.addEventListener("click", function (e) {
+                            var url = this.getAttribute("data-href-load");
+                            window.location.href = url;
                         });
                     });
+                });
         </script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {

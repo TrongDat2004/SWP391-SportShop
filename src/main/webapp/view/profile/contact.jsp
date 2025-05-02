@@ -5,7 +5,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Contact Us | SportShop</title>
+        <link rel="icon" type="image/png" href="assets/images/favi.jpg" sizes="16x16">
+        <title>SportShop | Contact Us</title>
         <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
         <style>
             .contact-section {

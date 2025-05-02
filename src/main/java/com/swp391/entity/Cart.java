@@ -11,9 +11,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cart {
-    private Integer cartId;
+public class Cart { // Đổi tên class từ CartItem nếu cần, nhưng Cart có vẻ đúng hơn cho 1 entry
+
+    private Integer cartEntryId;
     private Integer userId;
+    private Integer productId;
+    private Integer productSizeId; // <<< THÊM: ID của size sản phẩm trong giỏ
+    private Integer quantity;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // Quan hệ
+    private Product product;
+    private ProductSize productSize; // <<< THÊM: Thông tin size cụ thể (tùy chọn)
 }

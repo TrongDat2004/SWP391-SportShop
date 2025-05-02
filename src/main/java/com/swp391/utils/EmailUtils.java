@@ -1,6 +1,5 @@
 package com.swp391.utils;
 
-
 import com.swp391.config.GlobalConfig;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -18,7 +17,7 @@ public class EmailUtils {
 
     public static boolean sendMail(String to, String subject, String content) throws AddressException, MessagingException {
         Properties props = new Properties();
-         // Thiết lập các thuộc tính cho phiên gửi mail
+        // Thiết lập các thuộc tính cho phiên gửi mail
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
@@ -42,20 +41,22 @@ public class EmailUtils {
     }
 
     public static String sendOTPMail(String to) {
-        int otp = GlobalUtils.generateOTP(6); // Sử dụng phương thức generateOTP để tạo OTP
+        int otpIntValue = GlobalUtils.generateOTP(6);
+        String otpString = String.format("%06d", otpIntValue);
         String subject = "Mã OTP";
-        String content = "Mã OTP của bạn là: " + otp;
+        String content = "Mã OTP của bạn là: " + otpString;
 
         try {
             sendMail(to, subject, content);
         } catch (MessagingException ex) {
             Logger.getLogger(EmailUtils.class.getName()).log(Level.SEVERE, null, ex);
+
         }
 
-        return String.valueOf(otp);
+        return otpString;
     }
-    
+
     public static void main(String[] args) {
-        sendOTPMail("vinhpham2761@gmail.com");
+        sendOTPMail("nguyenhotrongdat2004@gmail.com");
     }
 }

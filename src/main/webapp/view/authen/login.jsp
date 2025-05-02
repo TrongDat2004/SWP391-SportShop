@@ -22,7 +22,7 @@
         <meta name="twitter:image" content="${pageContext.request.contextPath}/assets/images/logo.png">
         <meta name="twitter:site" content="@CycleCity">
 
-        <title>ShopSport | Your Hub for Quality Bicycles, Gear, and Accessories</title>
+        <title>SportShop | Login</title>
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/assets/images/favi.jpg" type="image/x-icon">
 
         <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
@@ -39,10 +39,6 @@
         </button>
         <!-- include header -->
         <!-- header -->
-        <!-- mouse -->
-        <div class="cursor"></div>
-        <div class="cursor-follower"></div>
-
 
         <!-- header section start -->
         <jsp:include page="../common/home/header.jsp"></jsp:include>
@@ -52,14 +48,15 @@
         <jsp:include page="../common/home/cartbox.jsp"></jsp:include>
             <!-- cart box -->
             <!-- main start -->
-            <main class="pt-12">
+            <main style="padding-top: 140px;">
 
                 <!-- hero section start -->
                 <section class="inner-hero-section px-xl-20 px-lg-10 px-sm-7" style="background-image: url(assets/images/inner-page-banner.png);">
                     <div class="container-fluid">
-                        <span class="text-animation-word text-h1 text-n100 mb-3">  </span>
+                        <span class="text-animation-word text-h1 text-n100 mb-3">Login</span>
                         <ul class="breadcrumb d-inline-flex align-items-center gap-lg-2 gap-1">
-
+                            <li class="breadcrumb-item"><a href="home">Home</a></li>
+                            <li class="breadcrumb-item active"><a href="">Login</a></li>
                         </ul>
                     </div>
                 </section>
@@ -72,7 +69,7 @@
                             <div class="col-xl-5 col-lg-7 col-md-9">
                                 <div class="register-form p-xl-15 p-lg-10 p-md-8 p-6 radius-16 border border-n100-1 bg-n20">
                                     <div class="register-logo mb-lg-15 mb-md-10 mb-8 mx-auto">
-                                        <img class="w-100" src="${pageContext.request.contextPath}/assets/images/logo.jpg" alt="logo">
+                                        <img class="w-100" src="${pageContext.request.contextPath}/assets/images/logof.jpg" alt="logo">
                                 </div>
                                 <c:if test="${not empty error}">
                                     <div class="alert alert-danger">
@@ -116,28 +113,6 @@
         <jsp:include page="../common/home/footer.jsp"></jsp:include>
             <!-- footer section end -->
             <script  src="${pageContext.request.contextPath}/assets/js/main.js"></script>
-        <!-- Add iziToast JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                var toastMessage = "${sessionScope.toastMessage}";
-                var toastType = "${sessionScope.toastType}";
-                if (toastMessage) {
-                    iziToast.show({
-                        title: toastType === 'success' ? 'Success' : 'Error',
-                        message: toastMessage,
-                        position: 'topRight',
-                        color: toastType === 'success' ? 'green' : 'red',
-                        timeout: 5000,
-                        onClosing: function () {
-                            fetch('${pageContext.request.contextPath}/remove-toast', {
-                                method: 'POST'
-                            });
-                        }
-                    });
-                }
-            });
-        </script>
     </body>
 
 </html>

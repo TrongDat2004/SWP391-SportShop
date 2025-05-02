@@ -8,6 +8,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
 
@@ -28,7 +29,9 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
 
     public List<Voucher> findVouchersWithFilters(String searchFilter, String statusFilter, int page, int pageSize) {
         List<Voucher> vouchers = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT * FROM voucher WHERE 1 = 1");
+        StringBuilder sql = new StringBuilder("SELECT v.*, ");
+        sql.append("(SELECT COUNT(*) FROM orders o WHERE o.applied_voucher_id = v.voucher_id) as usage_count "); // Đếm từ bảng orders
+        sql.append("FROM voucher v WHERE 1 = 1");
 
         if (searchFilter != null && !searchFilter.isEmpty()) {
             sql.append(" AND (code LIKE ? OR discount_amount LIKE ?)");
@@ -56,11 +59,16 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    vouchers.add(getFromResultSet(rs));
+                    Voucher v = getFromResultSet(rs);
+                    v.setCurrentUsage(rs.getInt("usage_count"));
+                    vouchers.add(v);
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error fetching vouchers with filters: " + e.getMessage());
+            // In thông báo lỗi ra luồng lỗi chuẩn (System.err)
+            System.err.println("Error fetching vouchers with filters: " + e.getMessage());
+            // In toàn bộ dấu vết lỗi để debug
+            e.printStackTrace(); 
         }
 
         return vouchers;
@@ -150,7 +158,7 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
 
     @Override
     public int insert(Voucher voucher) {
-        String sql = "INSERT INTO voucher (code, discount_amount, status, start_date, expiration_date, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO voucher (code, discount_amount, status, start_date, expiration_date, max_usage, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, voucher.getCode());
@@ -158,7 +166,8 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
             stmt.setInt(3, voucher.getStatus());
             stmt.setDate(4, Date.valueOf(voucher.getStartDate()));
             stmt.setDate(5, Date.valueOf(voucher.getExpirationDate()));
-            stmt.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            stmt.setInt(6, voucher.getMaxUsage());
+            stmt.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -193,23 +202,32 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
         return null;
     }
 
-    public Voucher findByCode(String code) {
-        String sql = "SELECT * FROM voucher WHERE code = ? AND status = 1 AND start_date <= ? AND expiration_date >= ?";
+    public Voucher findByCodeForCheck(String code) {
+        // Chỉ kiểm tra code và status trong SQL
+        String sql = "SELECT * FROM voucher WHERE code = ? AND status = 1";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setString(1, code);
-            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
-            stmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return getFromResultSet(rs);
+                    Voucher v = getFromResultSet(rs);
+                    // Kiểm tra ngày tháng ở đây sau khi lấy dữ liệu
+                    LocalDate today = LocalDate.now();
+                    if (v.getStartDate() != null && v.getStartDate().isAfter(today)) {
+                        System.out.println("Voucher check failed: Start date is in the future.");
+                        return null; // Chưa tới ngày bắt đầu
+                    }
+                    if (v.getExpirationDate() != null && v.getExpirationDate().isBefore(today)) {
+                        System.out.println("Voucher check failed: Expiration date has passed.");
+                        return null; // Đã hết hạn
+                    }
+                    return v; // Hợp lệ về code, status, date
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error checking voucher validity: " + e.getMessage());
+            System.err.println("Error finding voucher by code: " + e.getMessage());
+            e.printStackTrace();
         }
-        return null;
+        return null; // Không tìm thấy hoặc lỗi
     }
 
     public boolean isVoucherCodeExist(String code) {
@@ -227,7 +245,7 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
     }
 
     public boolean isVoucherCodeExist(String code, int voucherId) {
-        String query = "SELECT COUNT(*) FROM voucher WHERE code = ? AND id != ?";
+        String query = "SELECT COUNT(*) FROM voucher WHERE code = ? AND voucher_id != ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, code);
             stmt.setInt(2, voucherId);
@@ -257,30 +275,16 @@ public class VoucherDAO extends DBContext implements I_DAO<Voucher> {
         return false;
     }
 
-    public boolean hasUsedVoucher(int userId, int voucherId) {
-        String sql = "SELECT COUNT(*) FROM UserVoucher WHERE user_id = ? AND voucher_id = ?";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.setInt(2, voucherId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public int countUsersByVoucher(int voucherId) {
-        String sql = "SELECT COUNT(DISTINCT user_id) FROM UserVoucher WHERE voucher_id = ?";
+    public int countOrdersUsingVoucher(int voucherId) {
+        String sql = "SELECT COUNT(*) FROM orders WHERE applied_voucher_id = ?"; // Đếm từ bảng orders
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, voucherId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1);
+                return rs.getInt(1); // Trả về số lượng đơn hàng đã dùng voucher này
             }
         } catch (SQLException e) {
+            System.err.println("Error counting orders using voucher: " + e.getMessage());
             e.printStackTrace();
         }
         return 0;

@@ -22,6 +22,7 @@ public class Voucher {
     private int status;
     private Integer maxUsage; 
     private LocalDateTime createdAt;
+    private int currentUsage;
 
     public Integer getVoucherId() {
         return voucherId;
@@ -86,6 +87,13 @@ public class Voucher {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-    
+
+    public int getCurrentUsage() {
+        return currentUsage;
+    }
+
+    public void setCurrentUsage(int currentUsage) {
+        this.currentUsage = currentUsage;
+    }    
     
 }
